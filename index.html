@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#e0185a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Drone Fleet" />
+  <title>Drone Fleet Manager</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root {
+      --pink:#e0185a; --pink-light:#fbeaf0; --pink-dark:#b0103e;
+      --bg:#f5f5f5; --surface:#fff; --surface2:#f8f8f8;
+      --border:rgba(0,0,0,.10); --text:#1a1a1a; --text2:#666; --text3:#999;
+      --green:#29ba74; --red:#e24b4a; --amber:#ef9f27;
+      --radius:10px; --radius-sm:6px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--text)}
+
+    /* SETUP */
+    #setup-screen{position:fixed;inset:0;background:var(--surface);z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;overflow-y:auto}
+    #setup-screen.hidden{display:none}
+    .setup-logo{width:64px;height:64px;background:var(--pink);border-radius:18px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;flex-shrink:0}
+    .setup-logo svg{width:36px;height:36px;fill:white}
+    .setup-title{font-size:22px;font-weight:700;margin-bottom:6px}
+    .setup-sub{font-size:14px;color:var(--text2);text-align:center;margin-bottom:28px;line-height:1.5}
+    .setup-label{font-size:12px;font-weight:600;color:var(--text2);letter-spacing:.05em;text-transform:uppercase;align-self:flex-start;margin-bottom:6px}
+    .setup-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;color:var(--text);background:var(--surface2);outline:none;margin-bottom:16px}
+    .setup-input:focus{border-color:var(--pink)}
+    .setup-hint{font-size:12px;color:var(--text3);margin-bottom:6px;line-height:1.6;align-self:flex-start}
+    .setup-steps{background:#f0f8ff;border:1px solid #c5e1f5;border-radius:var(--radius);padding:14px;margin-bottom:20px;width:100%}
+    .setup-steps ol{padding-left:18px;font-size:13px;color:var(--text2);line-height:2}
+    .setup-steps li b{color:var(--text)}
+    .setup-btn{width:100%;padding:14px;background:var(--pink);color:white;border:none;border-radius:var(--radius);font-size:15px;font-weight:600;cursor:pointer}
+    .setup-btn:active{background:var(--pink-dark)}
+    .setup-skip{font-size:13px;color:var(--text3);margin-top:14px;cursor:pointer;text-decoration:underline}
+
+    /* APP */
+    #app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto}
+    header{background:var(--pink);color:white;padding:env(safe-area-inset-top,12px) 16px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+    .header-left{display:flex;align-items:center;gap:10px}
+    .header-icon{width:32px;height:32px;background:rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center}
+    .header-icon svg{width:18px;height:18px;fill:white}
+    h1{font-size:17px;font-weight:700}
+    .header-sub{font-size:11px;opacity:.75;margin-top:1px}
+    .settings-btn{background:none;border:none;color:white;opacity:.85;cursor:pointer;padding:4px}
+    .settings-btn svg{width:20px;height:20px;fill:white}
+
+    .tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+    .tab{flex:1;padding:12px 8px;text-align:center;font-size:12px;font-weight:600;color:var(--text3);cursor:pointer;border-bottom:2.5px solid transparent;transition:all .15s;letter-spacing:.03em;text-transform:uppercase}
+    .tab.active{color:var(--pink);border-bottom-color:var(--pink)}
+
+    /* FLEET PANEL — fixed header + scrollable list */
+    #fleet-panel{display:flex;flex-direction:column;flex:1;overflow:hidden}
+    #fleet-panel.hidden{display:none}
+    .fleet-header{padding:12px 14px 0;flex-shrink:0;background:var(--bg)}
+    .content{flex:1;overflow-y:auto;padding:0 14px}
+
+    /* HISTORY PANEL */
+    #history-panel{flex:1;overflow-y:auto;padding:14px 14px 0;display:none}
+    #history-panel.visible{display:block}
+
+    /* LOADING */
+    #loading-panel{flex:1;display:none;align-items:center;justify-content:center}
+    #loading-panel.visible{display:flex}
+
+    /* SUMMARY HORIZONTAL SCROLL */
+    .summary-scroll-wrap{position:relative;margin:0 0 10px}
+    .summary-scroll-wrap::after{content:'';position:absolute;top:0;right:0;width:32px;height:100%;background:linear-gradient(to right,transparent,var(--bg));pointer-events:none;border-radius:0 var(--radius) var(--radius) 0}
+    .summary-scroll{overflow-x:auto;padding:0 14px;scrollbar-width:none}
+    .summary-scroll::-webkit-scrollbar{display:none}
+    .summary{display:flex;gap:8px;width:max-content;padding-bottom:2px;padding-right:28px}
+    .stat-card{background:var(--surface);border-radius:var(--radius);padding:12px 10px;text-align:center;border:1px solid var(--border);min-width:calc((100vw - 42px) / 3.1);flex-shrink:0}
+    .stat-num{font-size:24px;font-weight:700;line-height:1}
+    .stat-label{font-size:10px;color:var(--text2);margin-top:4px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+    .stat-total .stat-num{color:#4a6fa5}
+    .stat-total{border-top:3px solid #4a6fa5}
+    .stat-good .stat-num{color:var(--green)}
+    .stat-good{border-top:3px solid var(--green)}
+    .stat-fail .stat-num{color:var(--red)}
+    .stat-fail{border-top:3px solid var(--red)}
+    .stat-unslot .stat-num{color:#d4a800}
+    .stat-unslot{border-top:3px solid #f5c518}
+    .stat-wip .stat-num{color:#c95e00}
+    .stat-wip{border-top:3px solid #ef7b27}
+
+    /* WIP POPUP */
+    #wip-popup{position:fixed;inset:0;z-index:80;display:none;align-items:flex-end;justify-content:center}
+    #wip-popup.open{display:flex}
+    .wip-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.3)}
+    .wip-box{position:relative;background:var(--surface);border-radius:20px 20px 0 0;padding:24px 20px 36px;width:100%;max-width:480px;text-align:center;animation:slideUp .2s ease}
+    .wip-icon{font-size:40px;margin-bottom:12px}
+    .wip-title{font-size:17px;font-weight:700;color:#c95e00;margin-bottom:6px}
+    .wip-sub{font-size:14px;color:var(--text2);line-height:1.5;margin-bottom:20px}
+    .wip-close{padding:12px 32px;background:#fff3e8;border:1.5px solid #ef7b27;border-radius:var(--radius);font-size:14px;font-weight:600;color:#c95e00;cursor:pointer}
+
+    .sync-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .sync-btn{font-size:12px;color:var(--pink);background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;font-weight:600}
+    .sync-btn svg{width:14px;height:14px;fill:var(--pink)}
+    .last-sync{font-size:11px;color:var(--text3)}
+
+    /* SEARCH — permanent, never re-rendered */
+    .search-wrap{position:relative;margin-bottom:8px}
+    .search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:16px;height:16px;fill:var(--text3);pointer-events:none}
+    #drone-search{width:100%;padding:9px 12px 9px 32px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:16px;color:var(--text);outline:none}
+    #drone-search:focus{border-color:var(--pink)}
+
+    .list-meta{font-size:12px;color:var(--text2);margin-bottom:8px;font-weight:500}
+
+    /* DRONE CARDS */
+    .drone-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .15s;margin-bottom:8px}
+    .drone-card:active{background:var(--surface2)}
+    .drone-avatar{width:38px;height:38px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .drone-info{flex:1;min-width:0}
+    .drone-name{font-size:14px;font-weight:600;color:var(--text)}
+    .drone-group{font-size:11px;color:var(--text3);margin-top:1px}
+    .status-pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap}
+    .pill-Good{background:#eaf3de;color:#3B6D11}
+    .pill-Fail{background:#fcebeb;color:#A32D2D}
+    .pill-Un-slotted{background:#fffbe0;color:#8a7000}
+    .pill-Work-In-Progress{background:#fff0e0;color:#c95e00}
+    .pill-Unknown{background:#f1efe8;color:#5f5e5a}
+
+    /* PAGINATION */
+    .pagination{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 0 80px}
+    .page-btn{padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);font-size:13px;font-weight:600;color:var(--text2);cursor:pointer}
+    .page-btn:disabled{opacity:.35;cursor:not-allowed}
+    .page-btn.active{background:var(--pink);color:white;border-color:var(--pink)}
+    .page-info{font-size:13px;color:var(--text2);min-width:80px;text-align:center}
+
+    /* HISTORY */
+    .history-item{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:11px 14px;display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+    .history-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+    .history-dot.Good{background:var(--green)}
+    .history-dot.Fail{background:var(--red)}
+    .history-dot.Un-slotted{background:#f5c518}
+    .history-dot.Work-In-Progress{background:#ef7b27}
+    .history-drone{font-size:13px;font-weight:600;color:var(--text)}
+    .history-detail{font-size:12px;color:var(--text2);margin-top:1px}
+    .history-time{font-size:11px;color:var(--text3);margin-left:auto;flex-shrink:0}
+
+    /* BOTTOM SHEET */
+    #update-sheet{position:fixed;inset:0;z-index:50;display:none}
+    #update-sheet.open{display:flex;flex-direction:column}
+    .sheet-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.4)}
+    .sheet-body{position:absolute;bottom:0;left:0;right:0;background:var(--surface);border-radius:20px 20px 0 0;padding:0 0 env(safe-area-inset-bottom,16px);max-height:90vh;overflow-y:auto;animation:slideUp .25s ease;max-width:480px;margin:0 auto}
+    @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+    .sheet-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 0}
+    .sheet-header{padding:14px 16px 12px;border-bottom:1px solid var(--border)}
+    .sheet-drone-name{font-size:17px;font-weight:700;color:var(--text)}
+    .sheet-section{padding:14px 16px;border-bottom:1px solid var(--border)}
+    .sheet-section-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+    .status-options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .status-option{padding:10px 6px;border:1.5px solid var(--border);border-radius:var(--radius-sm);text-align:center;cursor:pointer;transition:all .15s}
+    .status-option .opt-label{font-size:13px;font-weight:600;color:var(--text2)}
+    .status-option .opt-dot{width:10px;height:10px;border-radius:50%;margin:0 auto 5px}
+    .status-option.sel-Good{border-color:var(--green);background:#eaf3de}
+    .status-option.sel-Good .opt-label{color:#3B6D11}
+    .status-option.sel-Fail{border-color:var(--red);background:#fcebeb}
+    .status-option.sel-Fail .opt-label{color:#A32D2D}
+    .status-option.sel-Un-slotted{border-color:#f5c518;background:#fffbe0}
+    .status-option.sel-Un-slotted .opt-label{color:#8a7000}
+    .reason-grid{display:flex;flex-direction:column;gap:6px}
+    .reason-option{padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px}
+    .reason-option.selected{border-color:var(--red);background:#fcebeb;color:#A32D2D;font-weight:600}
+    .reason-radio{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+    .reason-option.selected .reason-radio{background:var(--red);border-color:var(--red)}
+    .reason-option.selected .reason-radio::after{content:'';width:5px;height:5px;border-radius:50%;background:white}
+    .reason-option span{pointer-events:none}
+    .notes-input{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;color:var(--text);background:var(--surface2);outline:none;resize:none;font-family:inherit}
+    .notes-input:focus{border-color:var(--pink)}
+    .sheet-footer{padding:12px 16px;display:flex;gap:10px}
+    .cancel-btn{flex:1;padding:13px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);font-size:14px;font-weight:600;color:var(--text2);cursor:pointer}
+    .submit-btn{flex:2;padding:13px;background:var(--pink);color:white;border:none;border-radius:var(--radius);font-size:14px;font-weight:700;cursor:pointer}
+    .submit-btn:disabled{opacity:.4;cursor:not-allowed}
+    .submit-btn:not(:disabled):active{background:var(--pink-dark)}
+
+    #toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1a1a;color:white;padding:10px 18px;border-radius:24px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;z-index:200}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    #toast.success{background:var(--green)}
+    #toast.error{background:var(--red)}
+
+    .spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--pink);border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .empty-msg{text-align:center;padding:40px 16px;color:var(--text3);font-size:14px;line-height:1.6}
+  </style>
+</head>
+<body>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen" class="hidden">
+  <div class="setup-logo">
+    <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm0 2c1.3 0 2.5.3 3.6.8L5.8 15.6A7.96 7.96 0 014 12c0-4.4 3.6-8 8-8zm0 16c-1.3 0-2.5-.3-3.6-.8l9.8-9.8c.5 1.1.8 2.3.8 3.6 0 4.4-3.6 8-8 8z"/></svg>
+  </div>
+  <div class="setup-title">Drone Fleet Manager</div>
+  <div class="setup-sub">Connect your Google Sheet via Apps Script</div>
+  <div class="setup-steps">
+    <ol>
+      <li>Open your Google Sheet</li>
+      <li>Click <b>Extensions → Apps Script</b></li>
+      <li>Paste the <b>Code.gs</b> file contents</li>
+      <li>Click <b>Deploy → New deployment</b></li>
+      <li>Type: <b>Web App</b> → Execute as: <b>Me</b> → Who has access: <b>Anyone</b></li>
+      <li>Copy the <b>Web App URL</b> and paste below</li>
+    </ol>
+  </div>
+  <div class="setup-label">Apps Script Web App URL</div>
+  <input class="setup-input" id="script-url-input" type="url" placeholder="https://script.google.com/macros/s/.../exec" />
+  <div class="setup-hint" style="margin-bottom:20px">The URL looks like: script.google.com/macros/s/ABC.../exec</div>
+  <button class="setup-btn" onclick="saveSetup()">Connect & Load Drones</button>
+  <div class="setup-skip" onclick="useDemoMode()">Use demo mode (no real sheet)</div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <header>
+    <div class="header-left">
+      <div class="header-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm0 2c1.3 0 2.5.3 3.6.8L5.8 15.6A7.96 7.96 0 014 12c0-4.4 3.6-8 8-8zm0 16c-1.3 0-2.5-.3-3.6-.8l9.8-9.8c.5 1.1.8 2.3.8 3.6 0 4.4-3.6 8-8 8z"/></svg>
+      </div>
+      <div>
+        <div class="header-sub">FLEET MANAGER</div>
+        <h1>Drone Status</h1>
+      </div>
+    </div>
+    <button class="settings-btn" onclick="openSetup()">
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.02 7.02 0 00-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+    </button>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" id="tab-fleet" onclick="switchMainTab('fleet')">Fleet</div>
+    <div class="tab" id="tab-history" onclick="switchMainTab('history')">History</div>
+  </div>
+
+  <!-- LOADING -->
+  <div id="loading-panel">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- FLEET PANEL: header stays fixed, only drone list scrolls -->
+  <div id="fleet-panel" class="hidden">
+    <div class="fleet-header">
+      <div class="summary-scroll-wrap">
+        <div class="summary-scroll">
+          <div class="summary">
+            <div class="stat-card stat-total"><div class="stat-num" id="cnt-total">0</div><div class="stat-label">Total</div></div>
+            <div class="stat-card stat-good"><div class="stat-num" id="cnt-good">0</div><div class="stat-label">Good</div></div>
+            <div class="stat-card stat-fail"><div class="stat-num" id="cnt-fail">0</div><div class="stat-label">Fail</div></div>
+            <div class="stat-card stat-unslot"><div class="stat-num" id="cnt-unslot">0</div><div class="stat-label">Un-slotted</div></div>
+            <div class="stat-card stat-wip"><div class="stat-num" id="cnt-wip">0</div><div class="stat-label">Work In Progress</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="sync-row">
+        <span class="last-sync" id="last-sync-label">—</span>
+        <button class="sync-btn" onclick="loadDrones()">
+          <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+          Refresh
+        </button>
+      </div>
+      <!-- SEARCH: permanent DOM element — never destroyed -->
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input id="drone-search" type="text" placeholder="Search drones..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+      </div>
+      <div class="list-meta" id="list-meta"></div>
+    </div>
+    <!-- Only this scrolls -->
+    <div class="content" id="drone-list-container"></div>
+  </div>
+
+  <!-- HISTORY PANEL -->
+  <div id="history-panel">
+    <div id="history-content"></div>
+  </div>
+</div>
+
+<!-- UPDATE BOTTOM SHEET -->
+<div id="update-sheet">
+  <div class="sheet-backdrop" onclick="closeSheet()"></div>
+  <div class="sheet-body">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div class="sheet-drone-name" id="sheet-drone-name">Drone</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:2px">Update status</div>
+    </div>
+    <div class="sheet-section">
+      <div class="sheet-section-title">Status</div>
+      <div class="status-options">
+        <div class="status-option" data-s="Good" onclick="selectStatus('Good')">
+          <div class="opt-dot" style="background:var(--green)"></div>
+          <div class="opt-label">Good</div>
+        </div>
+        <div class="status-option" data-s="Fail" onclick="selectStatus('Fail')">
+          <div class="opt-dot" style="background:var(--red)"></div>
+          <div class="opt-label">Fail</div>
+        </div>
+        <div class="status-option" data-s="Un-slotted" onclick="selectStatus('Un-slotted')">
+          <div class="opt-dot" style="background:#f5c518"></div>
+          <div class="opt-label">Un-slotted</div>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-section" id="reason-section" style="display:none">
+      <div class="sheet-section-title">Reason for Fail</div>
+      <div class="reason-grid" id="reason-grid"></div>
+    </div>
+    <div class="sheet-section">
+      <div class="sheet-section-title">Notes (optional)</div>
+      <textarea class="notes-input" id="notes-input" rows="2" placeholder="Add any additional notes..."></textarea>
+    </div>
+    <div class="sheet-footer">
+      <button class="cancel-btn" onclick="closeSheet()">Cancel</button>
+      <button class="submit-btn" id="submit-btn" onclick="submitUpdate()" disabled>Update Data</button>
+    </div>
+  </div>
+</div>
+
+<!-- WIP POPUP -->
+<div id="wip-popup">
+  <div class="wip-backdrop" onclick="closeWipPopup()"></div>
+  <div class="wip-box">
+    <div class="wip-icon">🟠</div>
+    <div class="wip-title">Work In Progress</div>
+    <div class="wip-sub" id="wip-drone-name">This drone is currently being<br>handled by the technician</div>
+    <button class="wip-close" onclick="closeWipPopup()">OK, Got it</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const PAGE_SIZE = 50;
+const REASONS = ['GPS ISSUE','RTK ISSUE','MAG ISSUE','MOTOR - A','MOTOR - B','MOTOR - C','MOTOR - D','LED ISSUE','MAG SCREW','ACCEL CALIB','COMPASS CALIB','ESP CONFIG','ESP RANGE','FILE ERROR','NO POWER'];
+const STATUS_COLORS = { Good:'#29ba74', Fail:'#e24b4a', 'Un-slotted':'#f5c518', 'Work In Progress':'#ef7b27' };
+const DEMO_DRONES = Array.from({length:20},(_,i)=>{
+  const groups=['Alpha','Beta','Gamma','Delta','Echo'];
+  const g=groups[Math.floor(i/4)];
+  const statuses=['Good','Good','Fail','Un-slotted','Work In Progress'];
+  return {id:`D${String(i+1).padStart(2,'0')}`,name:`Drone ${g} ${String(i%4+1).padStart(2,'0')}`,group:g,status:statuses[i%5]};
+});
+
+let config = JSON.parse(localStorage.getItem('droneConfig2') || 'null');
+let drones = [];
+let history = JSON.parse(localStorage.getItem('droneHistory') || '[]');
+let currentTab = 'fleet';
+let sheetDrone = null, sheetStatus = null, sheetReason = null;
+let lastSync = null, demoMode = false;
+let searchQuery = '';
+let currentPage = 1;
+let filteredDrones = [];
+
+// ── INIT ──
+window.onload = () => {
+  // Wire up search input once — never re-rendered
+  const searchEl = document.getElementById('drone-search');
+  searchEl.addEventListener('input', () => {
+    searchQuery = searchEl.value;
+    currentPage = 1;
+    applyFilterAndRender();
+  });
+
+  if (!config) {
+    showSetup();
+  } else {
+    demoMode = config.demo || false;
+    loadDrones();
+  }
+};
+
+// ── SETUP ──
+function showSetup() { document.getElementById('setup-screen').classList.remove('hidden'); }
+function hideSetup() { document.getElementById('setup-screen').classList.add('hidden'); }
+
+function saveSetup() {
+  const url = document.getElementById('script-url-input').value.trim();
+  if (!url || !url.includes('script.google.com')) {
+    showToast('Please paste a valid Apps Script URL', 'error'); return;
+  }
+  config = { scriptUrl: url, demo: false };
+  localStorage.setItem('droneConfig2', JSON.stringify(config));
+  hideSetup(); demoMode = false; loadDrones();
+}
+
+function useDemoMode() {
+  config = { demo: true };
+  localStorage.setItem('droneConfig2', JSON.stringify(config));
+  demoMode = true; hideSetup(); loadDrones();
+}
+
+function openSetup() {
+  if (config && config.scriptUrl) document.getElementById('script-url-input').value = config.scriptUrl;
+  showSetup();
+}
+
+// ── API ──
+async function apiCall(params) {
+  const url = new URL(config.scriptUrl);
+  Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data;
+}
+
+// ── LOAD ──
+async function loadDrones() {
+  showLoading();
+  if (demoMode) {
+    await new Promise(r => setTimeout(r, 500));
+    drones = JSON.parse(localStorage.getItem('droneDemoData') || JSON.stringify(DEMO_DRONES));
+    lastSync = new Date();
+    showFleet(); return;
+  }
+  try {
+    const data = await apiCall({ action: 'getDrones' });
+    drones = data.drones || [];
+    lastSync = new Date();
+    showFleet();
+  } catch(e) {
+    showLoading(false);
+    document.getElementById('drone-list-container').innerHTML =
+      `<div class="empty-msg"><b>Could not load drones</b><br><br>${e.message}<br><br>Check your Apps Script URL in ⚙️ Settings.</div>`;
+    document.getElementById('fleet-panel').classList.remove('hidden');
+  }
+}
+
+async function writeDrone(drone, status, reason, notes) {
+  if (demoMode) {
+    await new Promise(r => setTimeout(r, 600));
+    const idx = drones.findIndex(d => d.id === drone.id || d.name === drone.name);
+    if (idx >= 0) { drones[idx].status = status; drones[idx].reason = reason; }
+    localStorage.setItem('droneDemoData', JSON.stringify(drones));
+    return;
+  }
+  await apiCall({ action:'updateDrone', droneId: drone.id || drone.name, status, reason, notes });
+  const idx = drones.findIndex(d => d.id === drone.id);
+  if (idx >= 0) { drones[idx].status = status; drones[idx].reason = reason; }
+}
+
+// ── PANEL SWITCHING ──
+function showLoading(show=true) {
+  document.getElementById('loading-panel').classList.toggle('visible', show);
+  document.getElementById('fleet-panel').classList.toggle('hidden', show);
+  document.getElementById('history-panel').classList.remove('visible');
+}
+
+function showFleet() {
+  document.getElementById('loading-panel').classList.remove('visible');
+  document.getElementById('fleet-panel').classList.remove('hidden');
+  document.getElementById('history-panel').classList.remove('visible');
+  updateSummary();
+  applyFilterAndRender();
+}
+
+function showHistory() {
+  document.getElementById('loading-panel').classList.remove('visible');
+  document.getElementById('fleet-panel').classList.add('hidden');
+  document.getElementById('history-panel').classList.add('visible');
+  renderHistory();
+}
+
+function switchMainTab(tab) {
+  currentTab = tab;
+  document.getElementById('tab-fleet').classList.toggle('active', tab==='fleet');
+  document.getElementById('tab-history').classList.toggle('active', tab==='history');
+  if (tab==='fleet') showFleet(); else showHistory();
+}
+
+// ── SUMMARY ──
+function updateSummary() {
+  document.getElementById('cnt-total').textContent  = drones.length;
+  document.getElementById('cnt-good').textContent   = drones.filter(d=>d.status==='Good').length;
+  document.getElementById('cnt-fail').textContent   = drones.filter(d=>d.status==='Fail').length;
+  document.getElementById('cnt-unslot').textContent = drones.filter(d=>d.status==='Un-slotted').length;
+  document.getElementById('cnt-wip').textContent    = drones.filter(d=>d.status==='Work In Progress').length;
+  const t = lastSync ? lastSync.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '—';
+  document.getElementById('last-sync-label').textContent = `Synced ${t}`;
+}
+
+// ── FILTER + RENDER (only drone cards change, search input untouched) ──
+function applyFilterAndRender() {
+  const q = searchQuery.toLowerCase().trim();
+  filteredDrones = q
+    ? drones.filter(d => d.name.toLowerCase().includes(q) || (d.group||'').toLowerCase().includes(q) || (d.id||'').toLowerCase().includes(q))
+    : drones;
+
+  const total = filteredDrones.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  if (currentPage > totalPages) currentPage = totalPages;
+
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageItems = filteredDrones.slice(start, start + PAGE_SIZE);
+
+  // Meta label
+  const end = Math.min(start + PAGE_SIZE, total);
+  document.getElementById('list-meta').textContent =
+    total === 0 ? 'No drones found' :
+    total <= PAGE_SIZE ? `${total} drone${total!==1?'s':''}` :
+    `Showing ${start+1}–${end} of ${total} drones`;
+
+  // Drone cards
+  let html = '';
+  if (pageItems.length === 0) {
+    html = '<div class="empty-msg">No drones match your search</div>';
+  } else {
+    pageItems.forEach(d => {
+      const pClass = `pill-${(d.status||'Unknown').replace(/\s+/g,'-').replace(/In-/g,'In-')}`;
+      const color = STATUS_COLORS[d.status] || '#888';
+      const key = encodeURIComponent(d.id || d.name);
+      html += `<div class="drone-card" onclick="openSheet('${key}')">
+        <div class="drone-avatar">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="${color}">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5zm0-5.5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/>
+          </svg>
+        </div>
+        <div class="drone-info">
+          <div class="drone-name">${d.name}</div>
+          ${d.group?`<div class="drone-group">${d.group} Fleet</div>`:''}
+        </div>
+        <span class="status-pill ${pClass}">${d.status||'Unknown'}</span>
+      </div>`;
+    });
+  }
+
+  // Pagination controls
+  if (totalPages > 1) {
+    html += `<div class="pagination">
+      <button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>← Prev</button>
+      <span class="page-info">Page ${currentPage} / ${totalPages}</span>
+      <button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next →</button>
+    </div>`;
+  } else {
+    html += '<div style="height:80px"></div>';
+  }
+
+  document.getElementById('drone-list-container').innerHTML = html;
+}
+
+function goPage(p) {
+  currentPage = p;
+  applyFilterAndRender();
+  // Scroll list back to top
+  document.getElementById('drone-list-container').scrollTop = 0;
+}
+
+// ── HISTORY ──
+function renderHistory() {
+  if (history.length === 0) {
+    document.getElementById('history-content').innerHTML =
+      '<div class="empty-msg">No updates yet.<br>Update a drone status to see history here.</div>'; return;
+  }
+  let html = `<div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Recent Updates</div>`;
+  [...history].reverse().slice(0,50).forEach(h => {
+    const cls = (h.status||'').replace(/\s+/g,'-');
+    html += `<div class="history-item">
+      <div class="history-dot ${cls}"></div>
+      <div style="flex:1;min-width:0">
+        <div class="history-drone">${h.drone}</div>
+        <div class="history-detail">${h.status}${h.reason?' · '+h.reason:''}${h.notes?' · "'+h.notes+'"':''}</div>
+      </div>
+      <div class="history-time">${h.time}</div>
+    </div>`;
+  });
+  html += '<div style="height:80px"></div>';
+  document.getElementById('history-content').innerHTML = html;
+}
+
+// ── BOTTOM SHEET ──
+function openSheet(encodedId) {
+  const droneId = decodeURIComponent(encodedId);
+  sheetDrone = drones.find(d => d.id === droneId || d.name === droneId);
+  if (!sheetDrone) return;
+
+  // WIP drones — show popup, do NOT open update sheet
+  if (sheetDrone.status === 'Work In Progress') {
+    document.getElementById('wip-drone-name').textContent =
+      `"${sheetDrone.name}" is currently being handled by the technician`;
+    document.getElementById('wip-popup').classList.add('open');
+    return;
+  }
+
+  sheetStatus = null; sheetReason = null;
+  document.getElementById('sheet-drone-name').textContent = sheetDrone.name;
+  document.getElementById('notes-input').value = '';
+  document.querySelectorAll('.status-option').forEach(el => el.className = 'status-option');
+  document.getElementById('reason-section').style.display = 'none';
+  document.getElementById('submit-btn').disabled = true;
+  document.getElementById('update-sheet').classList.add('open');
+}
+
+function closeWipPopup() { document.getElementById('wip-popup').classList.remove('open'); }
+
+function closeSheet() { document.getElementById('update-sheet').classList.remove('open'); }
+
+function selectStatus(s) {
+  sheetStatus = s; sheetReason = null;
+  document.querySelectorAll('.status-option').forEach(el => {
+    el.className = 'status-option' + (el.dataset.s === s ? ` sel-${s}` : '');
+  });
+  if (s === 'Fail') {
+    document.getElementById('reason-section').style.display = 'block';
+    document.getElementById('reason-grid').innerHTML = REASONS.map(r =>
+      `<div class="reason-option" data-r="${r}" onclick="selectReason('${r}')"><div class="reason-radio"></div><span>${r}</span></div>`
+    ).join('');
+    document.getElementById('submit-btn').disabled = true;
+  } else {
+    document.getElementById('reason-section').style.display = 'none';
+    document.getElementById('submit-btn').disabled = false;
+  }
+}
+
+function selectReason(r) {
+  sheetReason = r;
+  document.querySelectorAll('.reason-option').forEach(el => {
+    const match = el.dataset.r === r;
+    el.className = 'reason-option' + (match ? ' selected' : '');
+  });
+  document.getElementById('submit-btn').disabled = false;
+}
+
+async function submitUpdate() {
+  if (!sheetStatus) return;
+  const btn = document.getElementById('submit-btn');
+  btn.textContent = 'Updating…'; btn.disabled = true;
+  const notes = document.getElementById('notes-input').value.trim();
+  try {
+    await writeDrone(sheetDrone, sheetStatus, sheetReason || '', notes);
+    history.push({ drone:sheetDrone.name, status:sheetStatus, reason:sheetReason||'', notes, time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) });
+    if (history.length > 200) history = history.slice(-200);
+    localStorage.setItem('droneHistory', JSON.stringify(history));
+    closeSheet();
+    showToast(`✓ ${sheetDrone.name} → ${sheetStatus}`, 'success');
+    updateSummary();
+    applyFilterAndRender();
+  } catch(e) {
+    showToast('Update failed: ' + e.message, 'error');
+  }
+  btn.textContent = 'Update Data';
+  btn.disabled = !(sheetStatus && (sheetStatus !== 'Fail' || sheetReason));
+}
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = type || '';
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
