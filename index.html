@@ -119,8 +119,14 @@
     .drone-group{font-size:11px;color:var(--text3);margin-top:1px}
 
 .drone-last-tested{font-size:11px;color:var(--text3);margin-top:2px}
-@keyframes cardUpdated{0%{transform:scale(1)}35%{transform:scale(1.02);box-shadow:0 0 0 4px rgba(41,186,116,.18)}100%{transform:scale(1)}}
-.drone-card.updated-card{animation:cardUpdated .8s ease}
+@keyframes cardUpdated{
+0%{transform:scale(1);box-shadow:0 0 0 0 rgba(224,24,90,0)}
+25%{transform:scale(1.03);box-shadow:0 0 0 6px rgba(224,24,90,.35);border-color:#e0185a}
+50%{transform:scale(1.04);background:#fff0f6}
+100%{transform:scale(1);box-shadow:0 0 0 0 rgba(224,24,90,0)}
+}
+.drone-card.updated-card{animation:cardUpdated 1.4s ease 2;border:2px solid #e0185a}
+
 
     .status-pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap}
     .pill-Good{background:#eaf3de;color:#3B6D11}
@@ -361,13 +367,18 @@ let filteredDrones = [];
 let recentlyUpdatedDrone=null;
 
 
+
 function getLastTestLabel(lastTested){
  if(!lastTested) return "";
- const td=new Date(lastTested), now=new Date();
- td.setHours(0,0,0,0); now.setHours(0,0,0,0);
- const diff=Math.floor((now-td)/86400000);
- return diff<=0?"Tested today":`Tested (${diff} day${diff>1?"s":""} ago)`;
+ const d=new Date(lastTested), t=new Date();
+ const dd=new Date(d); dd.setHours(0,0,0,0);
+ const tt=new Date(t); tt.setHours(0,0,0,0);
+ const diff=Math.floor((tt-dd)/86400000);
+ if(diff<=0) return "Last Tested: Today";
+ const fmt=String(d.getDate()).padStart(2,"0")+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+d.getFullYear();
+ return `Last Tested: ${fmt} (${diff} Day${diff>1?"s":""} Ago)`;
 }
+
 
 // ── INIT ──
 window.onload = () => {
@@ -449,13 +460,13 @@ async function writeDrone(drone, status, reason, notes) {
   if (demoMode) {
     await new Promise(r => setTimeout(r, 600));
     const idx = drones.findIndex(d => d.id === drone.id || d.name === drone.name);
-    if (idx >= 0) { drones[idx].status = status; drones[idx].reason = reason; drones[idx].lastTested=new Date().toISOString(); recentlyUpdatedDrone=drone.id||drone.name; }
+    if (idx >= 0) { drones[idx].status = status; drones[idx].reason = reason; drones[idx].updated=new Date().toISOString(); recentlyUpdatedDrone=drone.id||drone.name; }
     localStorage.setItem('droneDemoData', JSON.stringify(drones));
     return;
   }
   await apiCall({ action:'updateDrone', droneId: drone.id || drone.name, status, reason, notes });
   const idx = drones.findIndex(d => d.id === drone.id);
-  if (idx >= 0) { drones[idx].status = status; drones[idx].reason = reason; drones[idx].lastTested=new Date().toISOString(); recentlyUpdatedDrone=drone.id||drone.name; }
+  if (idx >= 0) { drones[idx].status = status; drones[idx].reason = reason; drones[idx].updated=new Date().toISOString(); recentlyUpdatedDrone=drone.id||drone.name; }
 }
 
 // ── PANEL SWITCHING ──
@@ -536,7 +547,7 @@ function applyFilterAndRender() {
         </div>
         <div class="drone-info">
           <div class="drone-name">${d.name}</div>
-          ${d.group?`<div class="drone-group">${d.group} Fleet</div>`:''}${d.lastTested?`<div class="drone-last-tested">${getLastTestLabel(d.lastTested)}</div>`:''}
+          ${d.group?`<div class="drone-group">${d.group} Fleet</div>`:''}${d.updated?`<div class="drone-last-tested">${getLastTestLabel(d.updated)}</div>`:''}
         </div>
         <span class="status-pill ${pClass}">${d.status||'Unknown'}</span>
       </div>`;
