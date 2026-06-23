@@ -368,15 +368,27 @@ let recentlyUpdatedDrone=null;
 
 
 
-function getLastTestLabel(lastTested){
- if(!lastTested) return "";
- const d=new Date(lastTested), t=new Date();
- const dd=new Date(d); dd.setHours(0,0,0,0);
- const tt=new Date(t); tt.setHours(0,0,0,0);
- const diff=Math.floor((tt-dd)/86400000);
- if(diff<=0) return "Last Tested: Today";
- const fmt=String(d.getDate()).padStart(2,"0")+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+d.getFullYear();
- return `Last Tested: ${fmt} (${diff} Day${diff>1?"s":""} Ago)`;
+function getLastTestLabel(lastTested) {
+    if (!lastTested) return "";
+
+    const d = new Date(lastTested);
+    const today = new Date();
+
+    d.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    const diffDays = Math.floor((today - d) / (1000 * 60 * 60 * 24));
+
+    if (diffDays <= 0) {
+        return `Last Tested: Today`;
+    }
+
+    const formattedDate =
+        String(d.getDate()).padStart(2, "0") + "-" +
+        String(d.getMonth() + 1).padStart(2, "0") + "-" +
+        d.getFullYear();
+
+    return `Last Tested: ${formattedDate}<br><span class="days-ago">(${diffDays} Day${diffDays > 1 ? "s" : ""} Ago)</span>`;
 }
 
 
