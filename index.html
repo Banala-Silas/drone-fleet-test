@@ -118,7 +118,18 @@
     .drone-name{font-size:14px;font-weight:600;color:var(--text)}
     .drone-group{font-size:11px;color:var(--text3);margin-top:1px}
 
-.drone-last-tested{font-size:11px;color:var(--text3);margin-top:2px}
+.drone-last-tested {
+    margin-top: 3px;
+    font-size: 11px;
+    color: #8a8a8a;
+    line-height: 1.3;
+}
+
+.drone-last-tested .days-ago {
+    font-size: 10px;
+    color: #9b9b9b;
+    font-weight: 500;
+}
 @keyframes cardUpdated{
 0%{transform:scale(1);box-shadow:0 0 0 0 transparent}
 20%{transform:scale(1.02)}
