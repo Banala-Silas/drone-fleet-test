@@ -117,6 +117,11 @@
     .drone-info{flex:1;min-width:0}
     .drone-name{font-size:14px;font-weight:600;color:var(--text)}
     .drone-group{font-size:11px;color:var(--text3);margin-top:1px}
+
+.drone-last-tested{font-size:11px;color:var(--text3);margin-top:2px}
+@keyframes cardUpdated{0%{transform:scale(1)}35%{transform:scale(1.02);box-shadow:0 0 0 4px rgba(41,186,116,.18)}100%{transform:scale(1)}}
+.drone-card.updated-card{animation:cardUpdated .8s ease}
+
     .status-pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap}
     .pill-Good{background:#eaf3de;color:#3B6D11}
     .pill-Fail{background:#fcebeb;color:#A32D2D}
@@ -353,6 +358,16 @@ let lastSync = null, demoMode = false;
 let searchQuery = '';
 let currentPage = 1;
 let filteredDrones = [];
+let recentlyUpdatedDrone=null;
+
+
+function getLastTestLabel(lastTested){
+ if(!lastTested) return "";
+ const td=new Date(lastTested), now=new Date();
+ td.setHours(0,0,0,0); now.setHours(0,0,0,0);
+ const diff=Math.floor((now-td)/86400000);
+ return diff<=0?"Tested today":`Tested (${diff} day${diff>1?"s":""} ago)`;
+}
 
 // ── INIT ──
 window.onload = () => {
@@ -434,13 +449,13 @@ async function writeDrone(drone, status, reason, notes) {
   if (demoMode) {
     await new Promise(r => setTimeout(r, 600));
     const idx = drones.findIndex(d => d.id === drone.id || d.name === drone.name);
-    if (idx >= 0) { drones[idx].status = status; drones[idx].reason = reason; }
+    if (idx >= 0) { drones[idx].status = status; drones[idx].reason = reason; drones[idx].lastTested=new Date().toISOString(); recentlyUpdatedDrone=drone.id||drone.name; }
     localStorage.setItem('droneDemoData', JSON.stringify(drones));
     return;
   }
   await apiCall({ action:'updateDrone', droneId: drone.id || drone.name, status, reason, notes });
   const idx = drones.findIndex(d => d.id === drone.id);
-  if (idx >= 0) { drones[idx].status = status; drones[idx].reason = reason; }
+  if (idx >= 0) { drones[idx].status = status; drones[idx].reason = reason; drones[idx].lastTested=new Date().toISOString(); recentlyUpdatedDrone=drone.id||drone.name; }
 }
 
 // ── PANEL SWITCHING ──
@@ -513,7 +528,7 @@ function applyFilterAndRender() {
       const pClass = `pill-${(d.status||'Unknown').replace(/\s+/g,'-').replace(/In-/g,'In-')}`;
       const color = STATUS_COLORS[d.status] || '#888';
       const key = encodeURIComponent(d.id || d.name);
-      html += `<div class="drone-card" onclick="openSheet('${key}')">
+      html += `<div class="drone-card ${recentlyUpdatedDrone===(d.id||d.name)?"updated-card":""}" onclick="openSheet('${key}')">
         <div class="drone-avatar">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="${color}">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5zm0-5.5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/>
@@ -521,7 +536,7 @@ function applyFilterAndRender() {
         </div>
         <div class="drone-info">
           <div class="drone-name">${d.name}</div>
-          ${d.group?`<div class="drone-group">${d.group} Fleet</div>`:''}
+          ${d.group?`<div class="drone-group">${d.group} Fleet</div>`:''}${d.lastTested?`<div class="drone-last-tested">${getLastTestLabel(d.lastTested)}</div>`:''}
         </div>
         <span class="status-pill ${pClass}">${d.status||'Unknown'}</span>
       </div>`;
@@ -540,6 +555,7 @@ function applyFilterAndRender() {
   }
 
   document.getElementById('drone-list-container').innerHTML = html;
+if(recentlyUpdatedDrone){setTimeout(()=>{recentlyUpdatedDrone=null;},900);}
 }
 
 function goPage(p) {
