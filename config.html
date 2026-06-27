@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#2d3a8c"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-title" content="Drone Config"/>
+  <title>Drone Configuration</title>
+  <style>
+    :root {
+      --bg:#f4f5f7; --surface:#fff; --surface2:#f8f9fa;
+      --border:rgba(0,0,0,.09); --text:#1a1a1a; --text2:#555; --text3:#999;
+      --blue:#2d3a8c; --blue-light:#eef1fb; --blue-border:#c5cdf0;
+      --green:#29ba74; --green-bg:#eaf3de; --green-border:#b7dfa0;
+      --amber:#f5c518; --amber-bg:#fffbe0; --amber-border:#e8d87a;
+      --pink:#e0185a; --pink-bg:#fbeaf0;
+      --radius:12px; --radius-sm:8px; --radius-xs:6px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--text)}
+
+    /* SETUP */
+    #setup{position:fixed;inset:0;background:var(--surface);z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;overflow-y:auto}
+    #setup.hidden{display:none}
+    .setup-logo{width:64px;height:64px;background:var(--blue);border-radius:18px;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+    .setup-logo svg{width:34px;height:34px;fill:white}
+    .setup-title{font-size:22px;font-weight:700;margin-bottom:6px}
+    .setup-sub{font-size:14px;color:var(--text2);text-align:center;margin-bottom:28px;line-height:1.5}
+    .setup-label{font-size:12px;font-weight:600;color:var(--text2);letter-spacing:.05em;text-transform:uppercase;align-self:flex-start;margin-bottom:6px}
+    .setup-input{width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;color:var(--text);background:var(--surface2);outline:none;margin-bottom:20px}
+    .setup-input:focus{border-color:var(--blue)}
+    .setup-btn{width:100%;padding:14px;background:var(--blue);color:white;border:none;border-radius:var(--radius);font-size:15px;font-weight:600;cursor:pointer}
+    .setup-skip{font-size:13px;color:var(--text3);margin-top:14px;cursor:pointer;text-decoration:underline}
+
+    /* APP */
+    #app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto}
+    header{background:var(--blue);color:white;padding:env(safe-area-inset-top,14px) 16px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+    .header-left{display:flex;align-items:center;gap:10px}
+    .header-icon{width:34px;height:34px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center}
+    .header-icon svg{width:20px;height:20px;fill:white}
+    .header-title{font-size:17px;font-weight:700}
+    .header-sub{font-size:11px;opacity:.6;margin-top:1px}
+    .header-btn{background:none;border:none;color:rgba(255,255,255,.8);cursor:pointer;padding:4px}
+    .header-btn svg{width:20px;height:20px;fill:rgba(255,255,255,.8)}
+
+    /* LOADING */
+    #loading{flex:1;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+    #loading.visible{display:flex}
+    .spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading-text{font-size:14px;color:var(--text3)}
+
+    /* MAIN */
+    #main{flex:1;overflow-y:auto;display:none;padding:14px 14px 0}
+    #main.visible{display:block}
+
+    /* SUMMARY CARDS */
+    .summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+    .sum-card{background:var(--surface);border-radius:var(--radius);padding:14px 16px;border:1px solid var(--border);position:relative;overflow:hidden}
+    .sum-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+    .sum-unconf::before{background:var(--amber)}
+    .sum-conf::before{background:var(--green)}
+    .sum-num{font-size:28px;font-weight:800;line-height:1;margin-bottom:4px}
+    .sum-unconf .sum-num{color:var(--amber)}
+    .sum-conf .sum-num{color:var(--green)}
+    .sum-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+
+    /* BATCH INFO */
+    .batch-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:14px 16px;margin-bottom:14px}
+    .batch-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .batch-title{font-size:13px;font-weight:700;color:var(--text)}
+    .batch-port{font-size:12px;color:var(--text2);background:var(--surface2);padding:2px 8px;border-radius:20px;border:1px solid var(--border)}
+    .progress-wrap{background:var(--surface2);border-radius:4px;height:6px;overflow:hidden;margin-bottom:6px}
+    .progress-bar{height:100%;background:var(--green);border-radius:4px;transition:width .4s}
+    .progress-label{font-size:11px;color:var(--text3)}
+
+    /* CREATE BATCH BTN */
+    .create-btn{width:100%;padding:13px;background:var(--blue);color:white;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px}
+    .create-btn:disabled{opacity:.4;cursor:not-allowed}
+    .create-btn svg{width:18px;height:18px;fill:white}
+
+    /* TOOLBAR */
+    .toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .select-all-btn{font-size:13px;font-weight:600;color:var(--blue);background:none;border:none;cursor:pointer}
+    .list-meta{font-size:12px;color:var(--text2);font-weight:500}
+
+    /* DRONE ROWS */
+    .drone-row{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:8px;display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;transition:border-color .15s,background .15s;user-select:none}
+    .drone-row.selected{border-color:var(--blue);background:var(--blue-light)}
+    .drone-row:active{background:var(--surface2)}
+    .drone-checkbox{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+    .drone-row.selected .drone-checkbox{background:var(--blue);border-color:var(--blue)}
+    .drone-row.selected .drone-checkbox::after{content:'✓';color:white;font-size:12px;font-weight:700}
+    .drone-info{flex:1;min-width:0}
+    .drone-id{font-size:14px;font-weight:700;color:var(--text)}
+    .drone-sub{font-size:12px;color:var(--text2);margin-top:2px}
+    .status-pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+    .pill-Unconfigured{background:var(--amber-bg);color:#7a6000;border:1px solid var(--amber-border)}
+    .pill-Configured{background:var(--green-bg);color:#2a6611;border:1px solid var(--green-border)}
+
+    /* PAGINATION */
+    .pagination{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 0 16px}
+    .page-btn{padding:7px 14px;border:1px solid var(--border);border-radius:var(--radius-xs);background:var(--surface);font-size:13px;font-weight:600;color:var(--text2);cursor:pointer}
+    .page-btn:disabled{opacity:.35;cursor:not-allowed}
+    .page-info{font-size:13px;color:var(--text2);min-width:80px;text-align:center}
+
+    /* BATCH BAR */
+    #batch-bar{position:fixed;bottom:0;left:0;right:0;background:var(--blue);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:none;align-items:center;gap:10px;z-index:40;max-width:480px;margin:0 auto}
+    #batch-bar.visible{display:flex}
+    .batch-count{font-size:14px;font-weight:600;color:rgba(255,255,255,.8);flex:1}
+    .batch-conf-btn{padding:10px 14px;background:var(--green);color:white;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+    .batch-unconf-btn{padding:10px 14px;background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.3);border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+    .batch-clear-btn{padding:10px 12px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);border:none;border-radius:var(--radius-sm);font-size:13px;cursor:pointer}
+
+    /* CREATE MODAL */
+    #modal{position:fixed;inset:0;z-index:60;display:none;align-items:flex-end;justify-content:center}
+    #modal.open{display:flex}
+    .modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+    .modal-box{position:relative;background:var(--surface);border-radius:20px 20px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom,0px));width:100%;max-width:480px;animation:slideUp .22s ease}
+    @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+    .modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px}
+    .modal-title{font-size:17px;font-weight:700;margin-bottom:4px}
+    .modal-sub{font-size:13px;color:var(--text2);margin-bottom:20px}
+    .modal-batch-range{background:var(--blue-light);border:1px solid var(--blue-border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:16px;font-size:14px;font-weight:600;color:var(--blue);text-align:center}
+    .modal-label{font-size:12px;font-weight:600;color:var(--text2);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px}
+    .modal-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:15px;color:var(--text);background:var(--surface2);outline:none;margin-bottom:20px;font-weight:600;letter-spacing:.05em}
+    .modal-input:focus{border-color:var(--blue)}
+    .modal-input::placeholder{font-weight:400;letter-spacing:0}
+    .modal-actions{display:flex;gap:10px}
+    .modal-cancel{flex:1;padding:13px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);font-size:14px;font-weight:600;color:var(--text2);cursor:pointer}
+    .modal-confirm{flex:2;padding:13px;background:var(--blue);color:white;border:none;border-radius:var(--radius);font-size:14px;font-weight:700;cursor:pointer}
+    .modal-confirm:disabled{opacity:.4;cursor:not-allowed}
+
+    /* TOAST */
+    #toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1a1a;color:white;padding:10px 18px;border-radius:24px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;z-index:200}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    #toast.success{background:var(--green)}
+    #toast.error{background:var(--pink)}
+
+    .empty-msg{text-align:center;padding:40px 16px;color:var(--text3);font-size:14px;line-height:1.7}
+    .footer-space{height:90px}
+  </style>
+</head>
+<body>
+
+<!-- SETUP -->
+<div id="setup">
+  <div class="setup-logo">
+    <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.02 7.02 0 00-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+  </div>
+  <div class="setup-title">Drone Configuration</div>
+  <div class="setup-sub">Connect to the same Apps Script URL used in the operator app</div>
+  <div class="setup-label">Apps Script Web App URL</div>
+  <input class="setup-input" id="setup-url" type="url" placeholder="https://script.google.com/macros/s/.../exec"/>
+  <button class="setup-btn" onclick="saveSetup()">Connect</button>
+  <div class="setup-skip" onclick="openSetup(false)">Already connected — open app</div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="header-left">
+      <div class="header-icon">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.02 7.02 0 00-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      </div>
+      <div>
+        <div class="header-sub">DRONE FLEET</div>
+        <div class="header-title">Configuration</div>
+      </div>
+    </div>
+    <button class="header-btn" onclick="openSetup(true)" title="Settings">
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.02 7.02 0 00-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+    </button>
+  </header>
+
+  <div id="loading"><div class="spinner"></div><div class="loading-text">Loading drones...</div></div>
+
+  <div id="main">
+    <!-- Summary -->
+    <div class="summary">
+      <div class="sum-card sum-unconf">
+        <div class="sum-num" id="cnt-unconf">0</div>
+        <div class="sum-label">Unconfigured</div>
+      </div>
+      <div class="sum-card sum-conf">
+        <div class="sum-num" id="cnt-conf">0</div>
+        <div class="sum-label">Configured</div>
+      </div>
+    </div>
+
+    <!-- Batch info -->
+    <div class="batch-card" id="batch-card" style="display:none">
+      <div class="batch-row">
+        <div class="batch-title" id="batch-range-label">—</div>
+        <div class="batch-port" id="batch-port-label">—</div>
+      </div>
+      <div class="progress-wrap"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
+      <div class="progress-label" id="progress-label">0 / 0 configured</div>
+    </div>
+
+    <!-- Create next batch button -->
+    <button class="create-btn" id="create-btn" onclick="openModal()" disabled>
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+      Configure Next 200 Drones
+    </button>
+
+    <!-- Drone list -->
+    <div class="toolbar">
+      <button class="select-all-btn" id="select-all-btn" onclick="toggleSelectAll()">Select All</button>
+      <div class="list-meta" id="list-meta"></div>
+    </div>
+    <div id="drone-list"></div>
+  </div>
+</div>
+
+<!-- BATCH BAR -->
+<div id="batch-bar">
+  <div class="batch-count" id="batch-count-label">0 selected</div>
+  <button class="batch-conf-btn" onclick="batchAction('Configured')">✓ Configure</button>
+  <button class="batch-unconf-btn" onclick="batchAction('Unconfigured')">↩ Unconfigure</button>
+  <button class="batch-clear-btn" onclick="clearSelection()">✕</button>
+</div>
+
+<!-- CREATE MODAL -->
+<div id="modal">
+  <div class="modal-backdrop" onclick="closeModal()"></div>
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Configure Next 200 Drones</div>
+    <div class="modal-sub">This will create a new batch and add them to the sheet.</div>
+    <div class="modal-batch-range" id="modal-range">DA801 – DA1000</div>
+    <div class="modal-label">Port ID</div>
+    <input class="modal-input" id="port-input" type="text" placeholder="e.g. 14650/55" maxlength="30"
+      oninput="document.getElementById('modal-confirm-btn').disabled = !this.value.trim()"/>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-confirm" id="modal-confirm-btn" onclick="createBatch()" disabled>Create Batch</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const PAGE_SIZE  = 50;
+let config       = JSON.parse(localStorage.getItem('configAppConfig') || 'null');
+let allDrones    = [];
+let nextBatch    = {};
+let canCreate    = false;
+let selectedIds  = new Set();
+let currentPage  = 1;
+
+// ── INIT ──
+window.onload = () => {
+  if (!config || !config.scriptUrl) {
+    document.getElementById('setup').classList.remove('hidden');
+  } else {
+    document.getElementById('setup').classList.add('hidden');
+    loadData();
+  }
+};
+
+// ── SETUP ──
+function saveSetup() {
+  const url = document.getElementById('setup-url').value.trim();
+  if (!url || !url.includes('script.google.com')) { showToast('Please paste a valid Apps Script URL', 'error'); return; }
+  config = { scriptUrl: url };
+  localStorage.setItem('configAppConfig', JSON.stringify(config));
+  document.getElementById('setup').classList.add('hidden');
+  loadData();
+}
+function openSetup(show) {
+  if (show) {
+    if (config && config.scriptUrl) document.getElementById('setup-url').value = config.scriptUrl;
+    document.getElementById('setup').classList.remove('hidden');
+  } else {
+    if (!config || !config.scriptUrl) return;
+    document.getElementById('setup').classList.add('hidden');
+    loadData();
+  }
+}
+
+// ── API ──
+async function api(params) {
+  const url = new URL(config.scriptUrl);
+  Object.entries(params).forEach(([k,v]) => url.searchParams.set(k,v));
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data;
+}
+
+// ── LOAD ──
+async function loadData() {
+  showLoading(true);
+  try {
+    const data  = await api({ action: 'getConfigDrones' });
+    allDrones   = data.drones  || [];
+    nextBatch   = data.nextBatch || {};
+    canCreate   = data.canCreate || false;
+    selectedIds.clear();
+    currentPage = 1;
+    renderSummary(data.summary || {});
+    renderBatchCard(data.summary || {});
+    renderList();
+    showLoading(false);
+  } catch(e) {
+    showLoading(false);
+    showToast('Load failed: ' + e.message, 'error');
+  }
+}
+
+function showLoading(show) {
+  document.getElementById('loading').classList.toggle('visible', show);
+  document.getElementById('main').classList.toggle('visible', !show);
+}
+
+// ── RENDER SUMMARY ──
+function renderSummary(s) {
+  document.getElementById('cnt-unconf').textContent = s.unconfigured || 0;
+  document.getElementById('cnt-conf').textContent   = s.configured   || 0;
+}
+
+// ── RENDER BATCH CARD ──
+function renderBatchCard(s) {
+  const total = (s.unconfigured || 0) + (s.configured || 0);
+  const card  = document.getElementById('batch-card');
+
+  if (total === 0) { card.style.display = 'none'; }
+  else {
+    card.style.display = 'block';
+    const pct = total > 0 ? Math.round((s.configured / total) * 100) : 0;
+
+    // Find port from first drone
+    const portDrone = allDrones.find(d => d.port_id);
+    const port      = portDrone ? portDrone.port_id : '—';
+
+    // Find id range of current batch
+    const ids = allDrones.map(d => d.id).sort();
+    const rangeLabel = ids.length ? `${ids[0]} – ${ids[ids.length-1]}` : '—';
+
+    document.getElementById('batch-range-label').textContent = rangeLabel;
+    document.getElementById('batch-port-label').textContent  = port;
+    document.getElementById('progress-bar').style.width      = pct + '%';
+    document.getElementById('progress-label').textContent    = `${s.configured || 0} / ${total} configured`;
+  }
+
+  // Create button — enabled only when canCreate
+  const btn = document.getElementById('create-btn');
+  btn.disabled = !canCreate;
+  btn.title    = canCreate ? '' : 'Configure all current drones before creating a new batch';
+}
+
+// ── RENDER LIST ──
+function renderList() {
+  const total      = allDrones.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  if (currentPage > totalPages) currentPage = totalPages;
+
+  const start     = (currentPage - 1) * PAGE_SIZE;
+  const pageItems = allDrones.slice(start, start + PAGE_SIZE);
+  const end       = Math.min(start + PAGE_SIZE, total);
+
+  document.getElementById('list-meta').textContent =
+    total === 0 ? '' :
+    total <= PAGE_SIZE ? `${total} drone${total !== 1 ? 's' : ''}` :
+    `${start+1}–${end} of ${total}`;
+
+  const allSel = allDrones.length > 0 && allDrones.every(d => selectedIds.has(d.id));
+  document.getElementById('select-all-btn').textContent = allSel ? 'Deselect All' : 'Select All';
+
+  let html = '';
+  if (!pageItems.length) {
+    html = '<div class="empty-msg">No drones to configure.<br>Create a new batch to get started.</div>';
+  } else {
+    pageItems.forEach(d => {
+      const sel = selectedIds.has(d.id);
+      html += `
+        <div class="drone-row ${sel ? 'selected' : ''}" onclick="toggleSelect('${d.id}')">
+          <div class="drone-checkbox"></div>
+          <div class="drone-info">
+            <div class="drone-id">${d.id}</div>
+            <div class="drone-sub">${d.name}${d.port_id ? ' · Port: ' + d.port_id : ''}${d.configured_at ? ' · ' + d.configured_at : ''}</div>
+          </div>
+          <span class="status-pill pill-${d.status}">${d.status}</span>
+        </div>`;
+    });
+  }
+
+  if (totalPages > 1) {
+    html += `<div class="pagination">
+      <button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>← Prev</button>
+      <span class="page-info">Page ${currentPage} / ${totalPages}</span>
+      <button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next →</button>
+    </div>`;
+  } else {
+    html += '<div class="footer-space"></div>';
+  }
+
+  document.getElementById('drone-list').innerHTML = html;
+  updateBatchBar();
+}
+
+function goPage(p) {
+  currentPage = p;
+  renderList();
+  document.getElementById('drone-list').scrollTop = 0;
+}
+
+// ── SELECTION ──
+function toggleSelect(id) {
+  if (selectedIds.has(id)) selectedIds.delete(id);
+  else selectedIds.add(id);
+  renderList();
+}
+function toggleSelectAll() {
+  const allSel = allDrones.every(d => selectedIds.has(d.id));
+  if (allSel) selectedIds.clear();
+  else allDrones.forEach(d => selectedIds.add(d.id));
+  renderList();
+}
+function clearSelection() { selectedIds.clear(); renderList(); }
+
+function updateBatchBar() {
+  const bar = document.getElementById('batch-bar');
+  const cnt = selectedIds.size;
+  if (cnt > 0) {
+    bar.classList.add('visible');
+    document.getElementById('batch-count-label').textContent = `${cnt} selected`;
+  } else {
+    bar.classList.remove('visible');
+  }
+}
+
+// ── BATCH ACTION ──
+async function batchAction(status) {
+  const ids = [...selectedIds];
+  if (!ids.length) return;
+
+  // Optimistic UI
+  ids.forEach(id => {
+    const d = allDrones.find(x => x.id === id);
+    if (d) {
+      d.status = status;
+      d.configured_at = status === 'Configured' ? 'Just now' : '';
+    }
+  });
+
+  const conf   = allDrones.filter(d => d.status === 'Configured').length;
+  const unconf = allDrones.filter(d => d.status === 'Unconfigured').length;
+  canCreate = unconf === 0 && allDrones.length > 0;
+
+  selectedIds.clear();
+  renderSummary({ configured: conf, unconfigured: unconf });
+  renderBatchCard({ configured: conf, unconfigured: unconf });
+  renderList();
+  showToast(`✓ ${ids.length} drone${ids.length!==1?'s':''} marked ${status}`, 'success');
+
+  try {
+    await api({ action: 'batchConfigUpdate', droneIds: JSON.stringify(ids), status });
+  } catch(e) {
+    showToast('Sync failed: ' + e.message, 'error');
+    loadData(); // reload to get actual state
+  }
+}
+
+// ── CREATE BATCH MODAL ──
+function openModal() {
+  if (!canCreate) {
+    showToast('Configure all current drones first', 'error'); return;
+  }
+  document.getElementById('port-input').value = '';
+  document.getElementById('modal-confirm-btn').disabled = true;
+  document.getElementById('modal-range').textContent =
+    nextBatch.startId && nextBatch.endId ? `${nextBatch.startId} – ${nextBatch.endId}` : 'Next 200 drones';
+  document.getElementById('modal').classList.add('open');
+  setTimeout(() => document.getElementById('port-input').focus(), 300);
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+async function createBatch() {
+  const portId = document.getElementById('port-input').value.trim();
+  if (!portId) { showToast('Please enter a Port ID', 'error'); return; }
+
+  const btn = document.getElementById('modal-confirm-btn');
+  btn.textContent = 'Creating...'; btn.disabled = true;
+
+  try {
+    const res = await api({ action: 'createNextBatch', portId });
+    closeModal();
+    showToast(`✓ Created ${res.created} drones (${res.startId}–${res.endId})`, 'success');
+    await loadData();
+  } catch(e) {
+    showToast(e.message, 'error');
+    btn.textContent = 'Create Batch'; btn.disabled = false;
+  }
+}
+
+// ── TOAST ──
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = type || '';
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3200);
+}
+</script>
+</body>
+</html>
