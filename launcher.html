@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#1a1a2e"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Drone HQ"/>
+  <title>Drone Fleet HQ</title>
+  <style>
+    :root {
+      --bg:#f0f2f8;
+      --surface:#ffffff;
+      --border:rgba(0,0,0,.08);
+      --text:#1a1a1a;
+      --text2:#555;
+      --text3:#999;
+      --radius:16px;
+      --radius-sm:10px;
+
+      /* App colours */
+      --operator:#e0185a;
+      --technician:#1a1a2e;
+      --config:#2d3a8c;
+      --show:#ef7b27;
+      --show-muted:#fdf0e6;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--text)}
+
+    /* ── SHELL ── */
+    #app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto}
+
+    /* ── HEADER ── */
+    header{
+      background:var(--technician);
+      padding:env(safe-area-inset-top,18px) 20px 18px;
+      flex-shrink:0;
+    }
+    .header-eyebrow{font-size:11px;font-weight:600;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+    .header-title{font-size:22px;font-weight:800;color:#ffffff}
+    .header-sub{font-size:13px;color:rgba(255,255,255,.5);margin-top:3px}
+
+    /* ── TABS ── */
+    .tabs{
+      display:flex;
+      background:var(--surface);
+      border-bottom:1px solid var(--border);
+      flex-shrink:0;
+      overflow-x:auto;
+      scrollbar-width:none;
+    }
+    .tabs::-webkit-scrollbar{display:none}
+    .tab{
+      flex:1;min-width:80px;
+      padding:12px 6px 10px;
+      text-align:center;
+      font-size:11px;font-weight:600;
+      color:var(--text3);
+      cursor:pointer;
+      border-bottom:2.5px solid transparent;
+      transition:all .18s;
+      letter-spacing:.02em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+    .tab .tab-icon{font-size:18px;display:block;margin-bottom:3px}
+    .tab.active-operator{color:var(--operator);border-bottom-color:var(--operator)}
+    .tab.active-technician{color:#4a6fa5;border-bottom-color:#4a6fa5}
+    .tab.active-config{color:var(--config);border-bottom-color:var(--config)}
+    .tab.active-show{color:var(--show);border-bottom-color:var(--show)}
+
+    /* ── CONTENT ── */
+    .content{flex:1;overflow-y:auto;padding:20px 16px}
+
+    /* ── APP CARD ── */
+    .app-card{
+      background:var(--surface);
+      border-radius:var(--radius);
+      border:1px solid var(--border);
+      overflow:hidden;
+      margin-bottom:16px;
+      box-shadow:0 2px 12px rgba(0,0,0,.06);
+    }
+    .app-card-banner{
+      height:6px;
+    }
+    .app-card-body{padding:20px}
+    .app-card-header{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+    .app-icon{
+      width:52px;height:52px;border-radius:14px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:26px;flex-shrink:0;
+    }
+    .app-name{font-size:18px;font-weight:800;color:var(--text)}
+    .app-tagline{font-size:13px;color:var(--text2);margin-top:2px;line-height:1.4}
+    .app-features{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+    .feature-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)}
+    .feature-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+    .launch-btn{
+      width:100%;padding:13px;
+      border:none;border-radius:var(--radius-sm);
+      font-size:14px;font-weight:700;
+      color:white;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      transition:opacity .15s;
+    }
+    .launch-btn:active{opacity:.85}
+    .launch-btn svg{width:16px;height:16px;fill:white}
+
+    /* Coming soon card */
+    .coming-soon-card{
+      background:var(--surface);
+      border-radius:var(--radius);
+      border:2px dashed var(--border);
+      padding:40px 20px;
+      text-align:center;
+      margin-bottom:16px;
+    }
+    .cs-icon{font-size:48px;margin-bottom:14px}
+    .cs-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:6px}
+    .cs-sub{font-size:13px;color:var(--text3);line-height:1.6;max-width:260px;margin:0 auto 20px}
+    .cs-badge{
+      display:inline-block;
+      background:#fff3e8;border:1px solid #ef7b27;
+      color:#c95e00;font-size:12px;font-weight:700;
+      padding:5px 14px;border-radius:20px;letter-spacing:.04em;
+    }
+
+    /* Status pills on card */
+    .status-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+    .chip{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px}
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <div class="header-eyebrow">Drone Fleet</div>
+    <div class="header-title">Fleet HQ</div>
+    <div class="header-sub">Select a module to get started</div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active-operator" id="tab-operator" onclick="showTab('operator')">
+      <span class="tab-icon">🧑‍✈️</span>Operator
+    </div>
+    <div class="tab" id="tab-technician" onclick="showTab('technician')">
+      <span class="tab-icon">🔧</span>Technician
+    </div>
+    <div class="tab" id="tab-config" onclick="showTab('config')">
+      <span class="tab-icon">⚙️</span>Config
+    </div>
+    <div class="tab" id="tab-show" onclick="showTab('show')">
+      <span class="tab-icon">🚁</span>Drone Show
+    </div>
+  </div>
+
+  <div class="content" id="content"></div>
+
+</div>
+
+<script>
+const TABS = {
+  operator: {
+    color: '#e0185a',
+    iconBg: '#fbeaf0',
+    icon: '🧑‍✈️',
+    name: 'Operator / Testing',
+    tagline: 'Daily drone inspection and status updates',
+    features: [
+      { color:'#29ba74', text:'Mark drones as Good, Fail, or Unconfigured' },
+      { color:'#e24b4a', text:'Log failure reasons for technician follow-up' },
+      { color:'#2d3a8c', text:'Test configured drones ready for inspection' },
+      { color:'#ef7b27', text:'Multi-select to batch mark drones as Good' },
+    ],
+    statusChips: [
+      { bg:'#eaf3de', color:'#3B6D11', label:'Good' },
+      { bg:'#fcebeb', color:'#A32D2D', label:'Fail' },
+      { bg:'#eaecf8', color:'#2d3a8c', label:'Ready for Testing' },
+      { bg:'#f0ebfa', color:'#5a3d91', label:'Unconfigured' },
+    ],
+    url: 'https://banala-silas.github.io/drone-fleet-test/',
+    btnLabel: 'Open Operator Screen',
+  },
+  technician: {
+    color: '#4a6fa5',
+    iconBg: '#eef2f8',
+    icon: '🔧',
+    name: 'Technician Repairs',
+    tagline: 'View daily failures and track repair progress',
+    features: [
+      { color:'#e24b4a', text:'See failed drones grouped by date' },
+      { color:'#ef7b27', text:'Mark drones as Work In Progress or Good' },
+      { color:'#29ba74', text:'Batch select and update multiple drones' },
+      { color:'#4a6fa5', text:'Sort by ID, status, reason, or time' },
+    ],
+    statusChips: [
+      { bg:'#fcebeb', color:'#A32D2D', label:'Fail' },
+      { bg:'#fff0e0', color:'#c95e00', label:'WIP' },
+      { bg:'#eaf3de', color:'#3B6D11', label:'Fixed' },
+    ],
+    url: 'https://banala-silas.github.io/drone-technician-test/technician.html',
+    btnLabel: 'Open Technician Screen',
+  },
+  config: {
+    color: '#2d3a8c',
+    iconBg: '#eaecf8',
+    icon: '⚙️',
+    name: 'Configuration',
+    tagline: 'Create drone batches and assign port IDs',
+    features: [
+      { color:'#2d3a8c', text:'Create next batch of 200 drones' },
+      { color:'#7c5cbf', text:'Assign port ID to each batch' },
+      { color:'#29ba74', text:'Mark drones as Configured for testing' },
+      { color:'#888888', text:'Track unconfigured vs configured count' },
+    ],
+    statusChips: [
+      { bg:'#f0ebfa', color:'#5a3d91', label:'Unconfigured' },
+      { bg:'#eaf3de', color:'#2a6611', label:'Configured' },
+    ],
+    url: 'https://banala-silas.github.io/drone-fleet-test/config.html',
+    btnLabel: 'Open Config Screen',
+  },
+};
+
+let activeTab = 'operator';
+
+function showTab(tab) {
+  activeTab = tab;
+
+  // Update tab styles
+  ['operator','technician','config','show'].forEach(t => {
+    const el = document.getElementById(`tab-${t}`);
+    el.className = 'tab' + (t === tab ? ` active-${t}` : '');
+  });
+
+  // Render content
+  if (tab === 'show') {
+    renderComingSoon();
+  } else {
+    renderAppCard(TABS[tab]);
+  }
+}
+
+function renderAppCard(cfg) {
+  const features = cfg.features.map(f => `
+    <div class="feature-row">
+      <div class="feature-dot" style="background:${f.color}"></div>
+      ${f.text}
+    </div>`).join('');
+
+  const chips = cfg.statusChips.map(c => `
+    <span class="chip" style="background:${c.bg};color:${c.color}">${c.label}</span>
+  `).join('');
+
+  document.getElementById('content').innerHTML = `
+    <div class="app-card">
+      <div class="app-card-banner" style="background:${cfg.color}"></div>
+      <div class="app-card-body">
+        <div class="app-card-header">
+          <div class="app-icon" style="background:${cfg.iconBg}">${cfg.icon}</div>
+          <div>
+            <div class="app-name">${cfg.name}</div>
+            <div class="app-tagline">${cfg.tagline}</div>
+          </div>
+        </div>
+        <div class="status-chips">${chips}</div>
+        <div class="app-features">${features}</div>
+        <button class="launch-btn" style="background:${cfg.color}" onclick="launch('${cfg.url}')">
+          <svg viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+          ${cfg.btnLabel}
+        </button>
+      </div>
+    </div>`;
+}
+
+function renderComingSoon() {
+  document.getElementById('content').innerHTML = `
+    <div class="coming-soon-card">
+      <div class="cs-icon">🚁</div>
+      <div class="cs-title">Drone Show</div>
+      <div class="cs-sub">The drone show management screen is currently under development and will be available soon.</div>
+      <div class="cs-badge">🚧 Coming Soon</div>
+    </div>`;
+}
+
+function launch(url) {
+  window.open(url, '_blank');
+}
+
+// Init
+showTab('operator');
+</script>
+</body>
+</html>
