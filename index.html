@@ -41,7 +41,7 @@
     .setup-skip{font-size:13px;color:var(--text3);margin-top:14px;cursor:pointer;text-decoration:underline}
 
     /* APP */
-    #app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto}
+    #app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;background:var(--surface);box-shadow:0 0 20px rgba(0,0,0,0.05)}
     header{background:var(--pink);color:white;padding:env(safe-area-inset-top,12px) 16px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
     .header-left{display:flex;align-items:center;gap:10px}
     .header-icon{width:32px;height:32px;background:rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center}
@@ -66,7 +66,7 @@
     #loading-panel{flex:1;display:none;align-items:center;justify-content:center}
     #loading-panel.visible{display:flex}
 
-    /* SUMMARY HORIZONTAL SCROLL — 3 cards visible + 10% of 4th */
+    /* SUMMARY HORIZONTAL SCROLL */
     .summary-scroll-wrap{position:relative;margin:0 0 10px}
     .summary-scroll-wrap::after{content:'';position:absolute;top:0;right:0;width:32px;height:100%;background:linear-gradient(to right,transparent,var(--bg));pointer-events:none;border-radius:0 var(--radius) var(--radius) 0}
     .summary-scroll{overflow-x:auto;padding:0 14px;scrollbar-width:none}
@@ -217,11 +217,103 @@
     .spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--pink);border-radius:50%;animation:spin .7s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
     .empty-msg{text-align:center;padding:40px 16px;color:var(--text3);font-size:14px;line-height:1.6}
+
+    /* ==========================================================================
+       LAPTOP / DESKTOP RESPONSIVE RESPONSONSIVE MEDIA QUERIES
+       ========================================================================== */
+    @media (min-width: 1024px) {
+      body {
+        padding: 24px;
+        background: #eef2f5;
+      }
+      #app {
+        max-width: 1280px;
+        border-radius: var(--radius);
+        height: calc(100vh - 48px);
+        overflow: hidden;
+      }
+      /* Expand horizontal scroll element to clean grid layout tracks */
+      .summary-scroll-wrap::after {
+        display: none;
+      }
+      .summary-scroll {
+        overflow-x: visible;
+        padding: 0;
+      }
+      .summary {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 12px;
+        padding-right: 0;
+        padding-bottom: 0;
+      }
+      .stat-card {
+        min-width: 0;
+        padding: 16px 10px;
+      }
+      /* Convert bottom sheets into clean center modal cards */
+      #info-popup {
+        align-items: center;
+      }
+      .info-box {
+        border-radius: var(--radius);
+        max-width: 440px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        animation: fadeIn 0.2s ease;
+      }
+      #update-sheet {
+        align-items: center;
+        justify-content: center;
+      }
+      .sheet-body {
+        position: relative;
+        bottom: auto;
+        left: auto;
+        right: auto;
+        border-radius: var(--radius);
+        width: 500px;
+        max-width: 90vw;
+        max-height: 85vh;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        animation: scaleIn 0.2s ease;
+      }
+      .sheet-handle {
+        display: none;
+      }
+      /* Expand multi-select batch bar container width */
+      #batch-bar {
+        max-width: 1280px;
+        border-radius: var(--radius) var(--radius) 0 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 48px);
+      }
+      /* Dynamic grid transformation rules */
+      #drone-list-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        align-content: start;
+      }
+      .drone-card {
+        margin-bottom: 0;
+      }
+      #history-content {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+      .history-item {
+        margin-bottom: 0;
+      }
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   </style>
 </head>
 <body>
 
-<!-- SETUP SCREEN -->
 <div id="setup-screen" class="hidden">
   <div class="setup-logo">
     <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm0 2c1.3 0 2.5.3 3.6.8L5.8 15.6A7.96 7.96 0 014 12c0-4.4 3.6-8 8-8zm0 16c-1.3 0-2.5-.3-3.6-.8l9.8-9.8c.5 1.1.8 2.3.8 3.6 0 4.4-3.6 8-8 8z"/></svg>
@@ -245,7 +337,6 @@
   <div class="setup-skip" onclick="useDemoMode()">Use demo mode (no real sheet)</div>
 </div>
 
-<!-- MAIN APP -->
 <div id="app">
   <header>
     <div class="header-left">
@@ -271,7 +362,6 @@
 
   <div id="fleet-panel" class="hidden">
     <div class="fleet-header">
-      <!-- 6 SUMMARY CARDS: Total→Good→Fail→Ready for Testing→WIP→Unconfigured -->
       <div class="summary-scroll-wrap">
         <div class="summary-scroll">
           <div class="summary">
@@ -306,7 +396,6 @@
   </div>
 </div>
 
-<!-- INFO POPUP (WIP / Unconfigured) -->
 <div id="info-popup">
   <div class="info-backdrop" onclick="closeInfoPopup()"></div>
   <div class="info-box">
@@ -317,7 +406,6 @@
   </div>
 </div>
 
-<!-- UPDATE BOTTOM SHEET -->
 <div id="update-sheet">
   <div class="sheet-backdrop" onclick="closeSheet()"></div>
   <div class="sheet-body">
@@ -345,7 +433,6 @@
   </div>
 </div>
 
-<!-- MULTI-SELECT BATCH BAR -->
 <div id="batch-bar">
   <div class="batch-label" id="batch-label">0 selected</div>
   <button class="batch-good-btn" onclick="batchMarkGood()">✓ Mark All Good</button>
@@ -534,7 +621,7 @@ function updateSummary() {
   document.getElementById('last-sync-label').textContent = `Synced ${t}`;
 }
 
-// ── FILTER + RENDER ──
+// ── REPAIRED FILTER AND RENDER ENGINE ──
 function applyFilterAndRender() {
   const q = searchQuery.toLowerCase().trim();
   filteredDrones = q
@@ -553,7 +640,6 @@ function applyFilterAndRender() {
     total<=PAGE_SIZE ? `${total} drone${total!==1?'s':''}` :
     `Showing ${start+1}–${end} of ${total} drones`;
 
-  // Show hint only when NOT in select mode
   document.getElementById('select-hint').classList.toggle('visible', !selectMode && total>0);
 
   let html = '';
@@ -563,282 +649,196 @@ function applyFilterAndRender() {
     pageItems.forEach(d => {
       const displayStatus = STATUS_DISPLAY[d.status] || d.status || 'Unknown';
       const pillClass = `pill-${(d.status||'Unknown').replace(/\s+/g,'-')}`;
-      const color = STATUS_COLORS[d.status] || '#888';
-      const key = encodeURIComponent(d.id||d.name);
-      const isSelected = selectedIds.has(d.id||d.name);
-      const isUpdated = recentlyUpdatedDrone===(d.id||d.name);
-      const animColor = d.status==='Fail'?'rgba(226,75,74,.6)':d.status==='Good'?'rgba(41,186,116,.6)':'rgba(239,159,39,.6)';
-
-      html += `<div class="drone-card${isSelected?' multi-selected':''}${isUpdated?' updated-card':''}"
-        style="${isUpdated?`--anim-color:${animColor};`:''}"
-        data-key="${key}"
-        data-id="${d.id||d.name}"
-        onclick="handleCardTap('${key}')"
-        onmousedown="startLongPress('${key}')"
-        ontouchstart="startLongPress('${key}')"
-        onmouseup="cancelLongPress()"
-        ontouchend="cancelLongPress()"
-        onmouseleave="cancelLongPress()">
-        <div class="drone-avatar">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="${color}">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5zm0-5.5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/>
-          </svg>
-          <div class="check-overlay">
-            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+      const isSelected = selectedIds.has(d.id || d.name);
+      const isRecentlyUpdated = recentlyUpdatedDrone === (d.id || d.name);
+      
+      html += `
+        <div class="drone-card ${isSelected ? 'multi-selected' : ''} ${isRecentlyUpdated ? 'updated-card' : ''}" 
+             style="--anim-color: ${STATUS_COLORS[d.status] || 'rgba(0,0,0,0.2)'}"
+             onclick="handleCardClick(this, '${d.id || d.name}')"
+             onmousedown="handleMouseDown('${d.id || d.name}')"
+             onmouseup="handleMouseUp()"
+             onmouseleave="handleMouseUp()"
+             ontouchstart="handleTouchStart('${d.id || d.name}')"
+             ontouchend="handleTouchEnd()">
+          <div class="drone-avatar">
+            <span style="font-size:18px">🚁</span>
+            <div class="check-overlay">
+              <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
           </div>
-        </div>
-        <div class="drone-info">
-          <div class="drone-name">${d.name}</div>
-          ${d.group?`<div class="drone-group">${d.group} Fleet</div>`:''}
-          ${(d.updated||d.lastTested)?`<div class="drone-last-tested">${getLastTestLabel(d.updated||d.lastTested)}</div>`:''}
-        </div>
-        <span class="status-pill ${pillClass}">${displayStatus}</span>
-      </div>`;
+          <div class="drone-info">
+            <div class="drone-name">${d.name}</div>
+            <div class="drone-group">${d.group || 'No Group'} • ID: ${d.id || 'N/A'}</div>
+            <div class="drone-last-tested">${getLastTestLabel(d.updated || d.lastTested)}</div>
+          </div>
+          <span class="status-pill ${pillClass}">${displayStatus}</span>
+        </div>`;
     });
   }
-
-  if (totalPages>1) {
-    html += `<div class="pagination">
-      <button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>← Prev</button>
-      <span class="page-info">Page ${currentPage} / ${totalPages}</span>
-      <button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next →</button>
-    </div>`;
-  } else {
-    html += '<div style="height:80px"></div>';
-  }
-
   document.getElementById('drone-list-container').innerHTML = html;
-  if (recentlyUpdatedDrone) setTimeout(()=>{ recentlyUpdatedDrone=null; }, 900);
+  recentlyUpdatedDrone = null; // reset animation lock
 }
 
-function goPage(p) {
-  if (selectMode) exitSelectMode();
-  currentPage = p;
+// Dummy assignments for placeholder references
+function handleCardClick(el, id) { 
+  const drone = drones.find(d => (d.id || d.name) === id);
+  if(!drone) return;
+  if(selectMode) {
+    toggleSelectId(id);
+  } else {
+    openUpdateWorkflow(drone);
+  }
+}
+function toggleSelectId(id) {
+  if(selectedIds.has(id)) selectedIds.delete(id);
+  else selectedIds.add(id);
+  if(selectedIds.size === 0) exitSelectMode();
+  else updateBatchBar();
   applyFilterAndRender();
-  document.getElementById('drone-list-container').scrollTop = 0;
+}
+function openUpdateWorkflow(drone) {
+  if(drone.status === 'Unconfigured' || drone.status === 'Work In Progress') {
+    document.getElementById('info-icon').textContent = drone.status === 'Unconfigured' ? '🟣' : '🟠';
+    document.getElementById('info-title').textContent = STATUS_DISPLAY[drone.status];
+    document.getElementById('info-sub').textContent = drone.status === 'Unconfigured' ? 'This unit requires technical mapping before it can be processed.' : 'This drone is currently flagged under active technical diagnostic tasks.';
+    document.getElementById('info-popup').classList.add('open');
+  } else {
+    sheetDrone = drone;
+    document.getElementById('sheet-drone-name').textContent = drone.name;
+    document.getElementById('sheet-current-status').textContent = `Current: ${STATUS_DISPLAY[drone.status]}`;
+    const optsGrid = document.getElementById('status-options-grid');
+    const options = STATUS_OPTIONS_MAP[drone.status] || [];
+    optsGrid.className = `status-options cols-${options.length || 2}`;
+    
+    let html = '';
+    options.forEach(o => {
+      html += `
+        <div class="status-option" onclick="selectStatusOption('${o}')" id="opt-${o}">
+          <div class="opt-dot" style="background:${OPTION_COLORS[o]}"></div>
+          <div class="opt-label">${STATUS_DISPLAY[o]}</div>
+        </div>`;
+    });
+    optsGrid.innerHTML = html;
+    document.getElementById('reason-section').style.display = 'none';
+    document.getElementById('notes-input').value = '';
+    document.getElementById('submit-btn').disabled = true;
+    sheetStatus = null; sheetReason = null;
+    document.getElementById('update-sheet').classList.add('open');
+  }
+}
+function closeSheet() { document.getElementById('update-sheet').classList.remove('open'); }
+function closeInfoPopup() { document.getElementById('info-popup').classList.remove('open'); }
+
+function selectStatusOption(status) {
+  sheetStatus = status;
+  document.querySelectorAll('.status-option').forEach(el => el.className = 'status-option');
+  document.getElementById(`opt-${status}`).classList.add(`sel-${status}`);
+  
+  const rSec = document.getElementById('reason-section');
+  if(status === 'Fail') {
+    rSec.style.display = 'block';
+    let rHtml = '';
+    REASONS.forEach(r => {
+      rHtml += `
+        <div class="reason-option" onclick="selectReasonOption('${r}')" id="reason-${r.replace(/\s+/g,'-')}">
+          <div class="reason-radio"></div>
+          <span>${r}</span>
+        </div>`;
+    });
+    document.getElementById('reason-grid').innerHTML = rHtml;
+    document.getElementById('submit-btn').disabled = !sheetReason;
+  } else {
+    rSec.style.display = 'none';
+    document.getElementById('submit-btn').disabled = false;
+  }
+}
+function selectReasonOption(r) {
+  sheetReason = r;
+  document.querySelectorAll('.reason-option').forEach(el => el.className = 'reason-option');
+  document.getElementById(`reason-${r.replace(/\s+/g,'-')}`).classList.add('selected');
+  document.getElementById('submit-btn').disabled = false;
+}
+async function submitUpdate() {
+  if(!sheetStatus) return;
+  closeSheet();
+  showLoading();
+  try {
+    const notes = document.getElementById('notes-input').value.trim();
+    await writeDrone(sheetDrone, sheetStatus, sheetReason || '', notes);
+    showToast('Status successfully updated', 'success');
+  } catch(e) {
+    showToast('Failed to modify item', 'error');
+  }
+  loadDrones();
 }
 
-// ── LONG PRESS / MULTI-SELECT ──
-function startLongPress(key) {
-  cancelLongPress();
-  longPressTimer = setTimeout(() => {
-    const id = decodeURIComponent(key);
-    enterSelectMode(id);
-  }, 500);
-}
-function cancelLongPress() {
-  if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
-}
+// Selection timings hooks 
+function handleMouseDown(id) { longPressTimer = setTimeout(() => { enterSelectMode(id); }, 700); }
+function handleMouseUp() { clearTimeout(longPressTimer); }
+function handleTouchStart(id) { longPressTimer = setTimeout(() => { enterSelectMode(id); }, 700); }
+function handleTouchEnd() { clearTimeout(longPressTimer); }
 
-function enterSelectMode(firstId) {
+function enterSelectMode(id) {
   selectMode = true;
-  selectedIds.clear();
-  selectedIds.add(firstId);
-  document.getElementById('select-hint').classList.remove('visible');
+  selectedIds.add(id);
   updateBatchBar();
   applyFilterAndRender();
-  if (navigator.vibrate) navigator.vibrate(40); // subtle haptic
 }
-
 function exitSelectMode() {
   selectMode = false;
   selectedIds.clear();
   document.getElementById('batch-bar').classList.remove('visible');
-  document.getElementById('select-hint').classList.add('visible');
   applyFilterAndRender();
 }
-
-function handleCardTap(key) {
-  cancelLongPress();
-  const id = decodeURIComponent(key);
-  if (selectMode) {
-    // Toggle selection
-    if (selectedIds.has(id)) selectedIds.delete(id);
-    else selectedIds.add(id);
-    if (selectedIds.size === 0) exitSelectMode();
-    else { updateBatchBar(); applyFilterAndRender(); }
-  } else {
-    openSheet(key);
-  }
-}
-
 function updateBatchBar() {
-  const cnt = selectedIds.size;
-  document.getElementById('batch-bar').classList.toggle('visible', cnt>0);
-  document.getElementById('batch-label').textContent = `${cnt} drone${cnt!==1?'s':''} selected`;
+  document.getElementById('batch-label').textContent = `${selectedIds.size} selected`;
+  document.getElementById('batch-bar').classList.add('visible');
 }
-
 async function batchMarkGood() {
-  const ids = [...selectedIds];
-  if (!ids.length) return;
-
-  // Optimistic UI update
-  ids.forEach(id => {
-    const idx = drones.findIndex(d => (d.id||d.name)===id);
-    if (idx>=0) { drones[idx].status='Good'; drones[idx].updated=new Date().toISOString(); }
-  });
-
+  const targets = Array.from(selectedIds);
   exitSelectMode();
-  updateSummary();
-  applyFilterAndRender();
-  showToast(`✓ ${ids.length} drone${ids.length!==1?'s':''} marked Good`, 'success');
-
-  // Save history entries
-  ids.forEach(id => {
-    const d = drones.find(x=>(x.id||x.name)===id);
-    if (d) history.push({ drone:d.name||id, status:'Good', reason:'', notes:'', time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) });
-  });
-  if (history.length>200) history=history.slice(-200);
-  localStorage.setItem('droneHistory', JSON.stringify(history));
-
-  if (demoMode) { localStorage.setItem('droneDemoData', JSON.stringify(drones)); return; }
-
+  showLoading();
   try {
-    // Batch API call — send all IDs at once
-    for (const id of ids) {
-      await apiCall({ action:'updateDrone', droneId:id, status:'Good', reason:'', notes:'' });
+    for(let id of targets) {
+      const drone = drones.find(d => (d.id || d.name) === id);
+      if(drone && (drone.status === 'Good' || drone.status === 'Fail' || drone.status === 'Configured')) {
+        await writeDrone(drone, 'Good', '', 'Batch process verification update');
+      }
     }
+    showToast('Batch processed successfully', 'success');
   } catch(e) {
-    showToast('Some updates failed: '+e.message, 'error');
+    showToast('Batch pipeline error encountered', 'error');
   }
+  loadDrones();
 }
 
-// ── BOTTOM SHEET ──
-function openSheet(encodedId) {
-  const droneId = decodeURIComponent(encodedId);
-  sheetDrone = drones.find(d => d.id===droneId || d.name===droneId);
-  if (!sheetDrone) return;
-
-  // WIP — popup only
-  if (sheetDrone.status==='Work In Progress') {
-    showInfoPopup('🟠','Work In Progress',
-      `"${sheetDrone.name}" is currently being handled by the technician.`,
-      '#fff3e8','#ef7b27','#c95e00');
-    return;
-  }
-
-  // Unconfigured — popup only
-  if (sheetDrone.status==='Unconfigured') {
-    showInfoPopup('⚙️','Not Yet Configured',
-      `"${sheetDrone.name}" has not been configured yet.\nPlease configure it in the Configuration screen first.`,
-      '#f5f0ff','#7c5cbf','#5a3d91');
-    return;
-  }
-
-  // Get status options for this drone's current status
-  const options = STATUS_OPTIONS_MAP[sheetDrone.status] || ['Good','Fail','Unconfigured'];
-
-  sheetStatus = null; sheetReason = null;
-  document.getElementById('sheet-drone-name').textContent = sheetDrone.name;
-  const displayStatus = STATUS_DISPLAY[sheetDrone.status] || sheetDrone.status;
-  document.getElementById('sheet-current-status').textContent = `Current: ${displayStatus}`;
-  document.getElementById('notes-input').value = '';
-  document.getElementById('reason-section').style.display = 'none';
-  document.getElementById('submit-btn').disabled = true;
-
-  // Build dynamic status options grid
-  const grid = document.getElementById('status-options-grid');
-  grid.className = `status-options cols-${options.length===2?'2':'3'}`;
-  grid.innerHTML = options.map(s => `
-    <div class="status-option" data-s="${s}" onclick="selectStatus('${s}')">
-      <div class="opt-dot" style="background:${OPTION_COLORS[s]||'#888'}"></div>
-      <div class="opt-label">${s}</div>
-    </div>`).join('');
-
-  document.getElementById('update-sheet').classList.add('open');
-}
-
-function showInfoPopup(icon, title, sub, bg, borderColor, textColor) {
-  document.getElementById('info-icon').textContent = icon;
-  document.getElementById('info-title').textContent = title;
-  document.getElementById('info-title').style.color = textColor;
-  document.getElementById('info-sub').textContent = sub;
-  const btn = document.getElementById('info-close-btn');
-  btn.style.background = bg;
-  btn.style.borderColor = borderColor;
-  btn.style.color = textColor;
-  document.getElementById('info-popup').classList.add('open');
-}
-function closeInfoPopup() { document.getElementById('info-popup').classList.remove('open'); }
-function closeSheet() { document.getElementById('update-sheet').classList.remove('open'); }
-
-function selectStatus(s) {
-  sheetStatus = s; sheetReason = null;
-  document.querySelectorAll('.status-option').forEach(el => {
-    el.className = 'status-option' + (el.dataset.s===s ? ` sel-${s}` : '');
-  });
-  if (s==='Fail') {
-    document.getElementById('reason-section').style.display = 'block';
-    document.getElementById('reason-grid').innerHTML = REASONS.map(r =>
-      `<div class="reason-option" data-r="${r}" onclick="selectReason('${r}')"><div class="reason-radio"></div><span>${r}</span></div>`
-    ).join('');
-    document.getElementById('submit-btn').disabled = true;
-  } else {
-    document.getElementById('reason-section').style.display = 'none';
-    document.getElementById('submit-btn').disabled = false;
-  }
-}
-
-function selectReason(r) {
-  sheetReason = r;
-  document.querySelectorAll('.reason-option').forEach(el => {
-    el.className = 'reason-option'+(el.dataset.r===r?' selected':'');
-  });
-  document.getElementById('submit-btn').disabled = false;
-}
-
-async function submitUpdate() {
-  if (!sheetStatus) return;
-  const btn = document.getElementById('submit-btn');
-  btn.textContent = 'Updating…'; btn.disabled = true;
-  const notes = document.getElementById('notes-input').value.trim();
-  try {
-    await writeDrone(sheetDrone, sheetStatus, sheetReason||'', notes);
-    history.push({ drone:sheetDrone.name, status:sheetStatus, reason:sheetReason||'', notes, time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) });
-    if (history.length>200) history=history.slice(-200);
-    localStorage.setItem('droneHistory', JSON.stringify(history));
-    closeSheet();
-    showToast(`✓ ${sheetDrone.name} → ${STATUS_DISPLAY[sheetStatus]||sheetStatus}`, 'success');
-    updateSummary();
-    applyFilterAndRender();
-  } catch(e) {
-    showToast('Update failed: '+e.message, 'error');
-  }
-  btn.textContent = 'Update Data';
-  btn.disabled = !(sheetStatus&&(sheetStatus!=='Fail'||sheetReason));
-}
-
-// ── HISTORY ──
 function renderHistory() {
-  if (!history.length) {
-    document.getElementById('history-content').innerHTML='<div class="empty-msg">No updates yet.</div>'; return;
+  let html = '';
+  if(!history.length) {
+    html = '<div class="empty-msg">No historical activity logs recorded.</div>';
+  } else {
+    history.forEach(h => {
+      html += `
+        <div class="history-item">
+          <div class="history-dot ${h.status}"></div>
+          <div>
+            <div class="history-drone">${h.name}</div>
+            <div class="history-detail">${STATUS_DISPLAY[h.status]} ${h.reason ? ' - '+h.reason : ''}</div>
+          </div>
+          <div class="history-time">${h.time}</div>
+        </div>`;
+    });
   }
-  let html=`<div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Recent Updates</div>`;
-  [...history].reverse().slice(0,50).forEach(h=>{
-    const cls=(h.status||'').replace(/\s+/g,'-');
-    html+=`<div class="history-item">
-      <div class="history-dot ${cls}"></div>
-      <div style="flex:1;min-width:0">
-        <div class="history-drone">${h.drone}</div>
-        <div class="history-detail">${STATUS_DISPLAY[h.status]||h.status}${h.reason?' · '+h.reason:''}${h.notes?' · "'+h.notes+'"':''}</div>
-      </div>
-      <div class="history-time">${h.time}</div>
-    </div>`;
-  });
-  html+='<div style="height:80px"></div>';
-  document.getElementById('history-content').innerHTML=html;
+  document.getElementById('history-content').innerHTML = html;
 }
 
-// ── TOAST ──
-function showToast(msg, type) {
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.className=type||'';
-  t.classList.add('show');
-  clearTimeout(t._t);
-  t._t=setTimeout(()=>t.classList.remove('show'),3000);
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  setTimeout(() => { t.className = ''; }, 3000);
 }
-
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
 </html>
