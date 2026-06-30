@@ -295,17 +295,33 @@
       }
       .drone-card{
         margin-bottom:0;
-        flex-direction:column;
-        align-items:flex-start;
-        gap:10px;
-        padding:14px;
+        display:grid;
+        grid-template-columns:1fr auto;
+        grid-template-rows:auto auto;
+        align-items:start;
+        column-gap:8px;
+        row-gap:2px;
+        padding:10px 12px;
       }
       .drone-card .drone-avatar{
-        width:34px;height:34px;
+        width:30px;height:30px;
+        grid-column:1;
+        grid-row:1;
       }
-      .drone-card .drone-info{width:100%}
+      .drone-card .status-pill{
+        grid-column:2;
+        grid-row:1;
+        align-self:start;
+        justify-self:end;
+        margin-top:0;
+      }
+      .drone-card .drone-info{
+        grid-column:1 / -1;
+        grid-row:2;
+        width:100%;
+      }
       .drone-name{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      .drone-card .status-pill{align-self:flex-start;margin-top:2px}
+      .drone-card .drone-last-tested{margin-top:1px;font-size:10px;line-height:1.2}
       .drone-card:hover{box-shadow:0 2px 10px rgba(0,0,0,.08);border-color:rgba(0,0,0,.18)}
 
       /* Pagination sits below the full grid */
