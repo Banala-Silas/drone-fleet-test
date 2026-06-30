@@ -217,6 +217,137 @@
     .spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--pink);border-radius:50%;animation:spin .7s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
     .empty-msg{text-align:center;padding:40px 16px;color:var(--text3);font-size:14px;line-height:1.6}
+
+    /* ════════════════════════════════════════════════════
+       DESKTOP LAYOUT (>= 1024px)
+       Everything below only applies on wide screens.
+       Mobile layout above is completely untouched.
+    ════════════════════════════════════════════════════ */
+    @media (min-width: 1024px) {
+      #app{
+        max-width:1280px;
+        height:100vh;
+      }
+
+      header{
+        padding:18px 28px;
+        border-radius:0;
+      }
+      .header-icon{width:38px;height:38px}
+      .header-icon svg{width:22px;height:22px}
+      h1{font-size:19px}
+
+      .tabs{padding:0 28px}
+      .tab{flex:none;padding:14px 22px;font-size:13px}
+
+      .fleet-header{padding:18px 28px 0}
+      .content{padding:0 28px}
+      #history-panel{padding:18px 28px 0}
+
+      /* Stat cards — fit to width, single row, no scroll */
+      .summary-scroll-wrap{margin:0 0 14px}
+      .summary-scroll-wrap::after{display:none}
+      .summary-scroll{overflow-x:visible;padding:0}
+      .summary{
+        display:grid;
+        grid-template-columns:repeat(6, 1fr);
+        width:100%;
+        gap:14px;
+        padding-right:0;
+        padding-bottom:0;
+      }
+      .stat-card{
+        min-width:0;
+        padding:16px 14px;
+      }
+      .stat-num{font-size:28px}
+      .stat-label{font-size:11px}
+
+      .sync-row{margin-bottom:14px}
+      .sync-btn{padding:8px 14px;border-radius:var(--radius-sm);background:var(--surface2)}
+      .sync-btn:hover{background:#eee}
+
+      .search-wrap{max-width:360px;margin-bottom:14px}
+      #drone-search{font-size:14px;padding:11px 14px 11px 36px}
+
+      .select-hint{display:none !important}
+      .list-meta{margin-bottom:14px;font-size:13px}
+
+      /* Drone grid — 5 columns x 20 rows = 100 per page */
+      #drone-list-container{
+        display:grid;
+        grid-template-columns:repeat(5, 1fr);
+        gap:12px;
+        align-content:start;
+      }
+      .drone-card{
+        margin-bottom:0;
+        flex-direction:column;
+        align-items:flex-start;
+        gap:10px;
+        padding:14px;
+      }
+      .drone-card .drone-avatar{
+        width:34px;height:34px;
+      }
+      .drone-card .drone-info{width:100%}
+      .drone-name{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .drone-card .status-pill{align-self:flex-start;margin-top:2px}
+      .drone-card:hover{box-shadow:0 2px 10px rgba(0,0,0,.08);border-color:rgba(0,0,0,.18)}
+
+      /* Pagination sits below the full grid */
+      .pagination{
+        grid-column:1 / -1;
+        padding:20px 0 40px;
+      }
+      .empty-msg{grid-column:1 / -1}
+
+      /* History — multi column on desktop */
+      #history-content > div:first-child{margin-bottom:14px}
+      .history-item{margin-bottom:0}
+      #history-content{
+        display:block;
+      }
+      #history-content .history-item{
+        max-width:100%;
+      }
+
+      /* Bottom sheet becomes a centered modal on desktop */
+      #update-sheet.open{align-items:center;justify-content:center}
+      .sheet-body{
+        position:relative;
+        border-radius:16px;
+        max-width:460px;
+        animation:modalPop .18s ease;
+        margin:0;
+      }
+      .sheet-handle{display:none}
+      @keyframes modalPop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+
+      /* Info popup becomes centered modal too */
+      #info-popup.open{align-items:center}
+      .info-box{
+        border-radius:16px;
+        animation:modalPop .18s ease;
+      }
+
+      /* Batch bar — centered, not full edge to edge */
+      #batch-bar{
+        max-width:600px;
+        left:50%;
+        right:auto;
+        transform:translateX(-50%);
+        border-radius:14px 14px 0 0;
+        bottom:0;
+      }
+
+      .drone-card{cursor:pointer}
+    }
+
+    /* Extra-wide screens: keep grid at 5 columns but cap card width */
+    @media (min-width: 1280px) {
+      #app{margin:0 auto}
+    }
   </style>
 </head>
 <body>
@@ -355,7 +486,11 @@
 <div id="toast"></div>
 
 <script>
-const PAGE_SIZE = 50;
+const isDesktop = () => window.innerWidth >= 1024;
+const PAGE_SIZE_MOBILE = 50;
+const PAGE_SIZE_DESKTOP = 100; // 5 cols x 20 rows
+function getPageSize(){ return isDesktop() ? PAGE_SIZE_DESKTOP : PAGE_SIZE_MOBILE; }
+
 const REASONS = ['GPS ISSUE','RTK ISSUE','MAG ISSUE','MOTOR - A','MOTOR - B','MOTOR - C','MOTOR - D','LED ISSUE','MAG SCREW','ACCEL CALIB','COMPASS CALIB','ESP CONFIG','ESP RANGE','FILE ERROR','NO POWER'];
 
 // Status display label — Configured shows as "Ready for Testing" in operator app
@@ -388,10 +523,10 @@ const OPTION_COLORS = {
   'Unconfigured': '#7c5cbf',
 };
 
-const DEMO_DRONES = Array.from({length:20},(_,i)=>{
-  const g=['Alpha','Beta','Gamma','Delta','Echo'][Math.floor(i/4)];
-  const statuses=['Good','Good','Fail','Unconfigured','Work In Progress'];
-  return {id:`D${String(i+1).padStart(2,'0')}`,name:`Drone ${g} ${String(i%4+1).padStart(2,'0')}`,group:g,status:statuses[i%5]};
+const DEMO_DRONES = Array.from({length:120},(_,i)=>{
+  const g=['Alpha','Beta','Gamma','Delta','Echo'][Math.floor(i/24)];
+  const statuses=['Good','Good','Fail','Unconfigured','Work In Progress','Configured'];
+  return {id:`D${String(i+1).padStart(2,'0')}`,name:`Drone ${g} ${String(i%24+1).padStart(2,'0')}`,group:g,status:statuses[i%6]};
 });
 
 let config = JSON.parse(localStorage.getItem('droneConfig2') || 'null');
@@ -431,6 +566,17 @@ window.onload = () => {
   });
   if (!config) showSetup();
   else { demoMode = config.demo || false; loadDrones(); }
+
+  // Re-render on resize crossing the desktop breakpoint (changes page size)
+  let lastIsDesktop = isDesktop();
+  window.addEventListener('resize', () => {
+    const nowDesktop = isDesktop();
+    if (nowDesktop !== lastIsDesktop) {
+      lastIsDesktop = nowDesktop;
+      currentPage = 1;
+      if (drones.length) applyFilterAndRender();
+    }
+  });
 };
 
 // ── SETUP ──
@@ -536,6 +682,7 @@ function updateSummary() {
 
 // ── FILTER + RENDER ──
 function applyFilterAndRender() {
+  const PAGE_SIZE = getPageSize();
   const q = searchQuery.toLowerCase().trim();
   filteredDrones = q
     ? drones.filter(d => d.name.toLowerCase().includes(q)||(d.group||'').toLowerCase().includes(q)||(d.id||'').toLowerCase().includes(q))
@@ -616,6 +763,7 @@ function goPage(p) {
   currentPage = p;
   applyFilterAndRender();
   document.getElementById('drone-list-container').scrollTop = 0;
+  document.querySelector('.content')?.scrollTo({top:0, behavior:'smooth'});
 }
 
 // ── LONG PRESS / MULTI-SELECT ──
