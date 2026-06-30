@@ -132,94 +132,57 @@
     .status-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
     .chip{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px}
 
-
-    /* ── LAPTOP/DESKTOP MEDIA QUERY ── */
-    @media (min-width: 768px) {
+    /* ════════════════════════════════════════════════════
+       DESKTOP 2x2 GRID CONFIGURATION (>= 1024px)
+       ════════════════════════════════════════════════════ */
+    @media (min-width: 1024px) {
+      html, body { height: auto; overflow-y: auto; }
+      
       #app {
-        max-width: 100%;
-        flex-direction: row;
-        background: var(--bg);
-      }
-
-      /* Transform header + tabs into a sidebar */
-      header {
-        width: 280px;
-        height: 100vh;
+        max-width: 1200px;
+        height: auto;
         padding: 40px 24px;
-        display: flex;
-        flex-direction: column;
-        border-right: 1px solid var(--border);
-      }
-      .header-sub {
-        margin-bottom: 40px;
+        gap: 24px;
       }
 
-      .tabs {
-        flex-direction: column;
-        background: transparent;
-        border-bottom: none;
-        overflow-x: visible;
-        gap: 8px;
+      header {
+        border-radius: var(--radius);
+        padding: 32px;
       }
+      .header-title { font-size: 32px; }
+      .header-sub { font-size: 15px; }
 
-      .tab {
-        flex: none;
-        text-align: left;
-        padding: 14px 16px;
-        font-size: 13px;
-        color: rgba(255,255,255,0.6);
-        border-bottom: none;
-        border-left: 4px solid transparent;
-        border-radius: var(--radius-sm);
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      .tab .tab-icon {
-        margin-bottom: 0;
-        font-size: 20px;
-      }
+      /* Hide mobile tabs layout on PC completely */
+      .tabs { display: none !important; }
 
-      /* Custom desktop hover & active states to match your theme */
-      .tab:hover {
-        background: rgba(255,255,255,0.05);
-        color: #fff;
-      }
-      .tab.active-operator {
-        color: #fff;
-        background: var(--operator);
-        border-left-color: #fff;
-      }
-      .tab.active-technician {
-        color: #fff;
-        background: #4a6fa5;
-        border-left-color: #fff;
-      }
-      .tab.active-config {
-        color: #fff;
-        background: var(--config);
-        border-left-color: #fff;
-      }
-      .tab.active-show {
-        color: #fff;
-        background: var(--show);
-        border-left-color: #fff;
-      }
-
-      /* Desktop Main Content Layout */
+      /* Setup the 2x2 grid framework */
       .content {
-        padding: 60px 40px;
-        display: flex;
-        align-items: flex-start;
-        justify-content: flex-start;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+        overflow-y: visible;
       }
 
+      /* Clean card sizing inside grid constraints */
       .app-card, .coming-soon-card {
-        width: 100%;
-        max-width: 600px; /* Gives the module card a clean desktop form factor */
         margin-bottom: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
       }
       .app-card-body {
+        padding: 28px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+      .app-features {
+        margin-bottom: 24px;
+        flex: 1; /* Pushes the launch action buttons cleanly to matching base levels */
+      }
+      .coming-soon-card {
+        justify-content: center;
         padding: 32px;
       }
     }
@@ -229,27 +192,25 @@
 <div id="app">
 
   <header>
-    <div>
-      <div class="header-eyebrow">Drone Fleet</div>
-      <div class="header-title">Fleet HQ</div>
-      <div class="header-sub">Select a module to get started</div>
-    </div>
-
-    <div class="tabs">
-      <div class="tab active-operator" id="tab-operator" onclick="showTab('operator')">
-        <span class="tab-icon">🧑‍✈️</span>Operator
-      </div>
-      <div class="tab" id="tab-technician" onclick="showTab('technician')">
-        <span class="tab-icon">🔧</span>Technician
-      </div>
-      <div class="tab" id="tab-config" onclick="showTab('config')">
-        <span class="tab-icon">⚙️</span>Config
-      </div>
-      <div class="tab" id="tab-show" onclick="showTab('show')">
-        <span class="tab-icon">🚁</span>Drone Show
-      </div>
-    </div>
+    <div class="header-eyebrow">Drone Fleet</div>
+    <div class="header-title">Fleet HQ</div>
+    <div class="header-sub" id="header-subtitle">Select a module to get started</div>
   </header>
+
+  <div class="tabs">
+    <div class="tab active-operator" id="tab-operator" onclick="showTab('operator')">
+      <span class="tab-icon">🧑‍✈️</span>Operator
+    </div>
+    <div class="tab" id="tab-technician" onclick="showTab('technician')">
+      <span class="tab-icon">🔧</span>Technician
+    </div>
+    <div class="tab" id="tab-config" onclick="showTab('config')">
+      <span class="tab-icon">⚙️</span>Config
+    </div>
+    <div class="tab" id="tab-show" onclick="showTab('show')">
+      <span class="tab-icon">🚁</span>Drone Show
+    </div>
+  </div>
 
   <div class="content" id="content"></div>
 
@@ -321,24 +282,8 @@ const TABS = {
 
 let activeTab = 'operator';
 
-function showTab(tab) {
-  activeTab = tab;
-
-  // Update tab styles
-  ['operator','technician','config','show'].forEach(t => {
-    const el = document.getElementById(`tab-${t}`);
-    el.className = 'tab' + (t === tab ? ` active-${t}` : '');
-  });
-
-  // Render content
-  if (tab === 'show') {
-    renderComingSoon();
-  } else {
-    renderAppCard(TABS[tab]);
-  }
-}
-
-function renderAppCard(cfg) {
+// Helper component structure to build the UI elements
+function buildCardHTML(cfg) {
   const features = cfg.features.map(f => `
     <div class="feature-row">
       <div class="feature-dot" style="background:${f.color}"></div>
@@ -349,7 +294,7 @@ function renderAppCard(cfg) {
     <span class="chip" style="background:${c.bg};color:${c.color}">${c.label}</span>
   `).join('');
 
-  document.getElementById('content').innerHTML = `
+  return `
     <div class="app-card">
       <div class="app-card-banner" style="background:${cfg.color}"></div>
       <div class="app-card-body">
@@ -370,8 +315,8 @@ function renderAppCard(cfg) {
     </div>`;
 }
 
-function renderComingSoon() {
-  document.getElementById('content').innerHTML = `
+function buildComingSoonHTML() {
+  return `
     <div class="coming-soon-card">
       <div class="cs-icon">🚁</div>
       <div class="cs-title">Drone Show</div>
@@ -380,12 +325,50 @@ function renderComingSoon() {
     </div>`;
 }
 
+function renderDesktopGrid() {
+  document.getElementById('header-subtitle').innerText = "Launch centralized drone control modules";
+  document.getElementById('content').innerHTML = 
+    buildCardHTML(TABS.operator) +
+    buildCardHTML(TABS.technician) +
+    buildCardHTML(TABS.config) +
+    buildComingSoonHTML();
+}
+
+function showTab(tab) {
+  activeTab = tab;
+
+  // Clear tab highlights
+  ['operator','technician','config','show'].forEach(t => {
+    const el = document.getElementById(`tab-${t}`);
+    el.className = 'tab' + (t === tab ? ` active-${t}` : '');
+  });
+
+  // Display screen layout based on active tab state
+  if (tab === 'show') {
+    document.getElementById('content').innerHTML = buildComingSoonHTML();
+  } else {
+    document.getElementById('content').innerHTML = buildCardHTML(TABS[tab]);
+  }
+}
+
 function launch(url) {
   window.open(url, '_blank');
 }
 
-// Init
-showTab('operator');
+// Media Query View Handler setup to route initialization
+function handleViewLayout(e) {
+  if (e.matches) {
+    renderDesktopGrid();
+  } else {
+    showTab(activeTab);
+  }
+}
+
+const desktopMediaQuery = window.matchMedia('(min-width: 1024px)');
+desktopMediaQuery.addEventListener('change', handleViewLayout);
+
+// Init View setup
+handleViewLayout(desktopMediaQuery);
 </script>
 </body>
 </html>
