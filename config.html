@@ -32,9 +32,10 @@
     .setup-input:focus{border-color:var(--blue)}
     .setup-btn{width:100%;padding:14px;background:var(--blue);color:white;border:none;border-radius:var(--radius);font-size:15px;font-weight:600;cursor:pointer}
     .setup-skip{font-size:13px;color:var(--text3);margin-top:14px;cursor:pointer;text-decoration:underline}
+    #setup-card{width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center}
 
     /* APP */
-    #app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto}
+    #app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;width:100%}
     header{background:var(--blue);color:white;padding:env(safe-area-inset-top,14px) 16px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
     .header-left{display:flex;align-items:center;gap:10px}
     .header-icon{width:34px;height:34px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center}
@@ -86,6 +87,7 @@
     .list-meta{font-size:12px;color:var(--text2);font-weight:500}
 
     /* DRONE ROWS */
+    #drone-list{display:block}
     .drone-row{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:8px;display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;transition:border-color .15s,background .15s;user-select:none}
     .drone-row.selected{border-color:var(--blue);background:var(--blue-light)}
     .drone-row:active{background:var(--surface2)}
@@ -94,13 +96,13 @@
     .drone-row.selected .drone-checkbox::after{content:'✓';color:white;font-size:12px;font-weight:700}
     .drone-info{flex:1;min-width:0}
     .drone-id{font-size:14px;font-weight:700;color:var(--text)}
-    .drone-sub{font-size:12px;color:var(--text2);margin-top:2px}
+    .drone-sub{font-size:12px;color:var(--text2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .status-pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
     .pill-Unconfigured{background:var(--amber-bg);color:#7a6000;border:1px solid var(--amber-border)}
     .pill-Configured{background:var(--green-bg);color:#2a6611;border:1px solid var(--green-border)}
 
     /* PAGINATION */
-    .pagination{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 0 16px}
+    .pagination{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 0 16px;grid-column:1/-1}
     .page-btn{padding:7px 14px;border:1px solid var(--border);border-radius:var(--radius-xs);background:var(--surface);font-size:13px;font-weight:600;color:var(--text2);cursor:pointer}
     .page-btn:disabled{opacity:.35;cursor:not-allowed}
     .page-info{font-size:13px;color:var(--text2);min-width:80px;text-align:center}
@@ -138,23 +140,112 @@
     #toast.success{background:var(--green)}
     #toast.error{background:var(--pink)}
 
-    .empty-msg{text-align:center;padding:40px 16px;color:var(--text3);font-size:14px;line-height:1.7}
+    .empty-msg{text-align:center;padding:40px 16px;color:var(--text3);font-size:14px;line-height:1.7;grid-column:1/-1}
     .footer-space{height:90px}
+
+    /* =========================================================
+       DESKTOP / LAPTOP VIEW (>=1024px)
+       Layout only — no business logic changes.
+       ========================================================= */
+    @media (min-width:1024px){
+      html,body{height:auto;min-height:100%}
+
+      #app{
+        max-width:1280px;
+        height:auto;
+        min-height:100vh;
+      }
+
+      header{
+        padding:18px 32px;
+        position:sticky; top:0; z-index:30;
+      }
+      .header-title{font-size:19px}
+
+      #loading{min-height:60vh}
+
+      /* whole page scrolls naturally instead of an inner scroll box */
+      #main{
+        overflow-y:visible;
+        padding:20px 32px 0;
+      }
+
+      /* Top summary cards stretch to fill the full width */
+      .summary{
+        grid-template-columns:repeat(2,1fr);
+        gap:16px;
+        margin-bottom:18px;
+      }
+      .sum-card{padding:20px 24px}
+      .sum-num{font-size:36px}
+      .sum-label{font-size:12px}
+
+      .batch-card{padding:18px 22px;margin-bottom:18px}
+      .batch-title{font-size:14px}
+
+      .create-btn{
+        max-width:340px;
+        margin-left:auto;margin-right:auto;
+        padding:14px;
+        font-size:14px;
+      }
+
+      .toolbar{margin-bottom:12px}
+      .list-meta{font-size:13px}
+      .select-all-btn{font-size:14px}
+
+      /* Drone cards: 5 columns grid, page is fully scrollable
+         (no fixed-height inner scroll container) */
+      #drone-list{
+        display:grid;
+        grid-template-columns:repeat(5,1fr);
+        gap:10px;
+        align-items:start;
+      }
+      .drone-row{
+        margin-bottom:0;
+        flex-direction:column;
+        align-items:flex-start;
+        gap:8px;
+        padding:14px 16px;
+      }
+      .drone-row .drone-checkbox{
+        position:absolute;
+        top:12px;right:12px;
+      }
+      .drone-row{position:relative;padding-right:40px}
+      .drone-info{width:100%}
+      .status-pill{align-self:flex-start}
+
+      .pagination{padding:18px 0 28px}
+
+      /* Batch bar + modal stay centered to match the wider container */
+      #batch-bar{max-width:1280px;padding:14px 32px}
+      .modal-box{max-width:480px}
+    }
+
+    @media (min-width:1440px){
+      #app{max-width:1480px}
+      #batch-bar{max-width:1480px}
+      #drone-list{grid-template-columns:repeat(6,1fr)}
+    }
   </style>
 </head>
 <body>
 
 <!-- SETUP -->
 <div id="setup">
-  <div class="setup-logo">
-    <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.02 7.02 0 00-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+  <div id="setup-card">
+    <div class="setup-logo">
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.02 7.02 0 00-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+    </div>
+    <div class="setup-title">Drone Configuration</div>
+    <div class="setup-sub">Connect to the same Apps Script URL used in the operator app</div>
+    <div class="setup-label">Apps Script Web App URL</div>
+    <input class="setup-input" id="setup-url" type="url" placeholder="https://script.google.com/macros/s/.../exec"/>
+    <button class="setup-btn" onclick="saveSetup()">Connect</button>
+    <div class="setup-skip" onclick="openSetup(false)">Already connected — open app</div>
   </div>
-  <div class="setup-title">Drone Configuration</div>
-  <div class="setup-sub">Connect to the same Apps Script URL used in the operator app</div>
-  <div class="setup-label">Apps Script Web App URL</div>
-  <input class="setup-input" id="setup-url" type="url" placeholder="https://script.google.com/macros/s/.../exec"/>
-  <button class="setup-btn" onclick="saveSetup()">Connect</button>
-  <div class="setup-skip" onclick="openSetup(false)">Already connected — open app</div>
 </div>
 
 <!-- APP -->
@@ -243,7 +334,10 @@
 <div id="toast"></div>
 
 <script>
-const PAGE_SIZE  = 50;
+// PAGE_SIZE scales up on wider screens so the 5-column grid fills ~20 rows
+// (100 drones/page) on desktop, while staying 50/page on mobile. Pure
+// presentation tweak — does not touch any business logic below.
+const PAGE_SIZE  = window.innerWidth >= 1024 ? 100 : 50;
 let config       = JSON.parse(localStorage.getItem('configAppConfig') || 'null');
 let allDrones    = [];
 let nextBatch    = {};
@@ -406,7 +500,9 @@ function renderList() {
 function goPage(p) {
   currentPage = p;
   renderList();
-  document.getElementById('drone-list').scrollTop = 0;
+  // Scroll the whole page to the top of the list on page change
+  document.getElementById('main').scrollIntoView({ block: 'start', behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ── SELECTION ──
