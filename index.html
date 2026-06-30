@@ -39,10 +39,9 @@
     .setup-btn{width:100%;padding:14px;background:var(--pink);color:white;border:none;border-radius:var(--radius);font-size:15px;font-weight:600;cursor:pointer}
     .setup-btn:active{background:var(--pink-dark)}
     .setup-skip{font-size:13px;color:var(--text3);margin-top:14px;cursor:pointer;text-decoration:underline}
-    #setup-card{width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center}
 
     /* APP */
-    #app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;width:100%}
+    #app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto}
     header{background:var(--pink);color:white;padding:env(safe-area-inset-top,12px) 16px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
     .header-left{display:flex;align-items:center;gap:10px}
     .header-icon{width:32px;height:32px;background:rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center}
@@ -112,7 +111,6 @@
     .list-meta{font-size:12px;color:var(--text2);margin-bottom:8px;font-weight:500}
 
     /* DRONE CARDS */
-    #drone-list-container{display:block}
     .drone-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .15s;margin-bottom:8px;user-select:none;-webkit-user-select:none}
     .drone-card:active{background:var(--surface2)}
     .drone-card.multi-selected{border-color:var(--pink);background:var(--pink-light)}
@@ -150,7 +148,6 @@
     .page-info{font-size:13px;color:var(--text2);min-width:80px;text-align:center}
 
     /* HISTORY */
-    #history-content{display:block}
     .history-item{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:11px 14px;display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
     .history-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
     .history-dot.Good{background:var(--green)}
@@ -227,12 +224,15 @@
        Mobile layout above is completely untouched.
     ════════════════════════════════════════════════════ */
     @media (min-width: 1024px) {
-      html,body{height:auto;overflow-y:auto}
+      html{scrollbar-gutter: stable}
+      html,body{height:auto;overflow-y:auto;width:100%}
 
       #app{
+        width:100%;
         max-width:1280px;
         height:auto;
         min-height:100vh;
+        box-sizing:border-box;
       }
 
       header{
@@ -241,6 +241,8 @@
         position:sticky;
         top:0;
         z-index:5;
+        width:100%;
+        box-sizing:border-box;
       }
 
       .tabs{position:sticky;top:62px;z-index:5}
@@ -256,9 +258,9 @@
       .tabs{padding:0 28px}
       .tab{flex:none;padding:14px 22px;font-size:13px}
 
-      .fleet-header{padding:18px 28px 0}
-      .content{padding:0 28px}
-      #history-panel{padding:18px 28px 0}
+      .fleet-header{padding:18px 28px 0;width:100%;box-sizing:border-box}
+      .content{padding:0 28px;width:100%;box-sizing:border-box}
+      #history-panel{padding:18px 28px 0;width:100%;box-sizing:border-box}
 
       /* Stat cards — fit to width, single row, no scroll */
       .summary-scroll-wrap{margin:0 0 14px}
@@ -334,20 +336,15 @@
       }
       .empty-msg{grid-column:1 / -1}
 
-      /* History — multi-column grid on desktop, matching the
-         fleet grid so the screen consistently fills the width
-         and the whole page scrolls instead of a clipped panel */
-      #history-content{
-        display:grid;
-        grid-template-columns:repeat(3, 1fr);
-        gap:10px;
-        align-content:start;
-      }
-      #history-content > div:first-child{
-        grid-column:1 / -1;
-        margin-bottom:0;
-      }
+      /* History — multi column on desktop */
+      #history-content > div:first-child{margin-bottom:14px}
       .history-item{margin-bottom:0}
+      #history-content{
+        display:block;
+      }
+      #history-content .history-item{
+        max-width:100%;
+      }
 
       /* Bottom sheet becomes a centered modal on desktop */
       #update-sheet.open{align-items:center;justify-content:center}
@@ -381,11 +378,9 @@
       .drone-card{cursor:pointer}
     }
 
-    @media (min-width: 1440px) {
-      #app{max-width:1480px}
-      #drone-list-container{grid-template-columns:repeat(6, 1fr)}
-      #history-content{grid-template-columns:repeat(4, 1fr)}
-      #batch-bar{max-width:700px}
+    /* Extra-wide screens: keep grid at 5 columns but cap card width */
+    @media (min-width: 1280px) {
+      #app{margin:0 auto}
     }
   </style>
 </head>
@@ -393,28 +388,26 @@
 
 <!-- SETUP SCREEN -->
 <div id="setup-screen" class="hidden">
-  <div id="setup-card">
-    <div class="setup-logo">
-      <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm0 2c1.3 0 2.5.3 3.6.8L5.8 15.6A7.96 7.96 0 014 12c0-4.4 3.6-8 8-8zm0 16c-1.3 0-2.5-.3-3.6-.8l9.8-9.8c.5 1.1.8 2.3.8 3.6 0 4.4-3.6 8-8 8z"/></svg>
-    </div>
-    <div class="setup-title">Drone Fleet Manager</div>
-    <div class="setup-sub">Connect your Google Sheet via Apps Script</div>
-    <div class="setup-steps">
-      <ol>
-        <li>Open your Google Sheet</li>
-        <li>Click <b>Extensions → Apps Script</b></li>
-        <li>Paste the <b>Code.gs</b> file contents</li>
-        <li>Click <b>Deploy → New deployment</b></li>
-        <li>Type: <b>Web App</b> → Execute as: <b>Me</b> → Who has access: <b>Anyone</b></li>
-        <li>Copy the <b>Web App URL</b> and paste below</li>
-      </ol>
-    </div>
-    <div class="setup-label">Apps Script Web App URL</div>
-    <input class="setup-input" id="script-url-input" type="url" placeholder="https://script.google.com/macros/s/.../exec" />
-    <div class="setup-hint" style="margin-bottom:20px">The URL looks like: script.google.com/macros/s/ABC.../exec</div>
-    <button class="setup-btn" onclick="saveSetup()">Connect & Load Drones</button>
-    <div class="setup-skip" onclick="useDemoMode()">Use demo mode (no real sheet)</div>
+  <div class="setup-logo">
+    <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm0 2c1.3 0 2.5.3 3.6.8L5.8 15.6A7.96 7.96 0 014 12c0-4.4 3.6-8 8-8zm0 16c-1.3 0-2.5-.3-3.6-.8l9.8-9.8c.5 1.1.8 2.3.8 3.6 0 4.4-3.6 8-8 8z"/></svg>
   </div>
+  <div class="setup-title">Drone Fleet Manager</div>
+  <div class="setup-sub">Connect your Google Sheet via Apps Script</div>
+  <div class="setup-steps">
+    <ol>
+      <li>Open your Google Sheet</li>
+      <li>Click <b>Extensions → Apps Script</b></li>
+      <li>Paste the <b>Code.gs</b> file contents</li>
+      <li>Click <b>Deploy → New deployment</b></li>
+      <li>Type: <b>Web App</b> → Execute as: <b>Me</b> → Who has access: <b>Anyone</b></li>
+      <li>Copy the <b>Web App URL</b> and paste below</li>
+    </ol>
+  </div>
+  <div class="setup-label">Apps Script Web App URL</div>
+  <input class="setup-input" id="script-url-input" type="url" placeholder="https://script.google.com/macros/s/.../exec" />
+  <div class="setup-hint" style="margin-bottom:20px">The URL looks like: script.google.com/macros/s/ABC.../exec</div>
+  <button class="setup-btn" onclick="saveSetup()">Connect & Load Drones</button>
+  <div class="setup-skip" onclick="useDemoMode()">Use demo mode (no real sheet)</div>
 </div>
 
 <!-- MAIN APP -->
@@ -805,7 +798,6 @@ function goPage(p) {
   applyFilterAndRender();
   document.getElementById('drone-list-container').scrollTop = 0;
   document.querySelector('.content')?.scrollTo({top:0, behavior:'smooth'});
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ── LONG PRESS / MULTI-SELECT ──
