@@ -456,8 +456,8 @@
         <div class="summary-scroll">
           <div class="summary">
             <div class="stat-card stat-total"><div class="stat-num" id="cnt-total">0</div><div class="stat-label">Total</div></div>
-            <div class="stat-card stat-good"><div class="stat-num" id="cnt-good">0</div><div class="stat-label">Good</div></div>
-            <div class="stat-card stat-fail"><div class="stat-num" id="cnt-fail">0</div><div class="stat-label">Fail</div></div>
+            <div class="stat-card stat-good"><div class="stat-num" id="cnt-good">0</div><div class="stat-label">Qualified</div></div>
+            <div class="stat-card stat-fail"><div class="stat-num" id="cnt-fail">0</div><div class="stat-label">Unqualified</div></div>
             <div class="stat-card stat-rft"><div class="stat-num" id="cnt-rft">0</div><div class="stat-label">Ready for Testing</div></div>
             <div class="stat-card stat-wip"><div class="stat-num" id="cnt-wip">0</div><div class="stat-label">Work In Progress</div></div>
             <div class="stat-card stat-unconf"><div class="stat-num" id="cnt-unconf">0</div><div class="stat-label">Unconfigured</div></div>
@@ -528,7 +528,7 @@
 <!-- MULTI-SELECT BATCH BAR -->
 <div id="batch-bar">
   <div class="batch-label" id="batch-label">0 selected</div>
-  <button class="batch-good-btn" onclick="batchMarkGood()">✓ Mark All Good</button>
+  <button class="batch-good-btn" onclick="batchMarkGood()">✓ Mark All Qualified</button>
   <button class="batch-cancel-btn" onclick="exitSelectMode()">✕ Cancel</button>
 </div>
 
@@ -544,8 +544,8 @@ const REASONS = ['GPS ISSUE','RTK ISSUE','MAG ISSUE','MOTOR - A','MOTOR - B','MO
 
 // Status display label — Configured shows as "Ready for Testing" in operator app
 const STATUS_DISPLAY = {
-  'Good':             'Good',
-  'Fail':             'Fail',
+  'Good':             'Qualified',
+  'Fail':             'Unqualified',
   'Configured':       'Ready for Testing',
   'Unconfigured':     'Unconfigured',
   'Work In Progress': 'Work In Progress',
@@ -560,9 +560,9 @@ const STATUS_COLORS = {
 
 // Status options per current status
 const STATUS_OPTIONS_MAP = {
-  'Configured':   ['Good', 'Fail'],                    // Ready for Testing → can only test
-  'Good':         ['Good', 'Fail', 'Unconfigured'],
-  'Fail':         ['Good', 'Fail', 'Unconfigured'],
+  'Configured':   ['Qualified', 'Unqualified'],                    // Ready for Testing → can only test
+  'Good':         ['Qualified', 'Unqualified', 'Unconfigured'],
+  'Fail':         ['Qualified', 'Unqualified', 'Unconfigured'],
   'Unconfigured': [],                                  // popup only
   'Work In Progress': [],                              // popup only
 };
