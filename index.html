@@ -1003,7 +1003,7 @@ async function submitUpdate() {
     showToast('Update failed: '+e.message, 'error');
   }
   btn.textContent = 'Update Data';
-  btn.disabled = !(sheetStatus&&(sheetStatus!=='Fail'||sheetReason));
+  btn.disabled = !(sheetStatus&&(sheetStatus!=='Unqualified'||sheetReason));
 }
 
 // ── HISTORY ──
