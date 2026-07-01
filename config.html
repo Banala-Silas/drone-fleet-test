@@ -462,58 +462,100 @@ function renderBatchCard(s) {
 
 // ── RENDER LIST ──
 function renderList() {
-  const total      = allDrones.length;
+
+  // Sort drones by Drone Name (D - 0001, D - 0002...)
+  const sortedDrones = [...allDrones].sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, { numeric: true })
+  );
+
+  const total = sortedDrones.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
   if (currentPage > totalPages) currentPage = totalPages;
 
-  const start     = (currentPage - 1) * PAGE_SIZE;
-  const pageItems = allDrones.slice(start, start + PAGE_SIZE);
-  const end       = Math.min(start + PAGE_SIZE, total);
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageItems = sortedDrones.slice(start, start + PAGE_SIZE);
+  const end = Math.min(start + PAGE_SIZE, total);
 
   document.getElementById('list-meta').textContent =
     total === 0 ? '' :
     total <= PAGE_SIZE ? `${total} drone${total !== 1 ? 's' : ''}` :
-    `${start+1}–${end} of ${total}`;
+    `${start + 1}–${end} of ${total}`;
 
-  const allSel = allDrones.length > 0 && allDrones.every(d => selectedIds.has(d.id));
-  document.getElementById('select-all-btn').textContent = allSel ? 'Deselect All' : 'Select All';
+  const allSel =
+    sortedDrones.length > 0 &&
+    sortedDrones.every(d => selectedIds.has(d.id));
+
+  document.getElementById('select-all-btn').textContent =
+    allSel ? 'Deselect All' : 'Select All';
 
   let html = '';
+
   if (!pageItems.length) {
-    html = '<div class="empty-msg">No drones to configure.<br>Create a new batch to get started.</div>';
+
+    html =
+      '<div class="empty-msg">No drones to configure.<br>Create a new batch to get started.</div>';
+
   } else {
+
     pageItems.forEach(d => {
+
       const sel = selectedIds.has(d.id);
+
       html += `
         <div class="drone-row ${sel ? 'selected' : ''}" onclick="toggleSelect('${d.id}')">
+
           <div class="drone-checkbox"></div>
+
           <div class="drone-info">
 
-              <div class="drone-id">
-                  ${d.name}
-              </div>
+            <div class="drone-id">
+              ${d.name}
+            </div>
 
-              <div class="drone-sub">
-                  ${d.configured_at || ''}
-              </div>
+            <div class="drone-sub">
+              ${d.configured_at || ''}
+            </div>
 
           </div>
-          <span class="status-pill pill-${d.status}">${d.status}</span>
+
+          <span class="status-pill pill-${d.status}">
+            ${d.status}
+          </span>
+
         </div>`;
     });
   }
 
   if (totalPages > 1) {
-    html += `<div class="pagination">
-      <button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>← Prev</button>
-      <span class="page-info">Page ${currentPage} / ${totalPages}</span>
-      <button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next →</button>
-    </div>`;
+
+    html += `
+      <div class="pagination">
+        <button class="page-btn"
+                onclick="goPage(${currentPage - 1})"
+                ${currentPage === 1 ? 'disabled' : ''}>
+          ← Prev
+        </button>
+
+        <span class="page-info">
+          Page ${currentPage} / ${totalPages}
+        </span>
+
+        <button class="page-btn"
+                onclick="goPage(${currentPage + 1})"
+                ${currentPage === totalPages ? 'disabled' : ''}>
+          Next →
+        </button>
+      </div>`;
+
   } else {
+
     html += '<div class="footer-space"></div>';
+
   }
 
   document.getElementById('drone-list').innerHTML = html;
+
   updateBatchBar();
 }
 
