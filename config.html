@@ -475,8 +475,15 @@ function renderList() {
         <div class="drone-row ${sel ? 'selected' : ''}" onclick="toggleSelect('${d.id}')">
           <div class="drone-checkbox"></div>
           <div class="drone-info">
-            <div class="drone-id">${d.id}</div>
-            <div class="drone-sub">${d.name}${d.port_id ? ' · Port: ' + d.port_id : ''}${d.configured_at ? ' · ' + d.configured_at : ''}</div>
+
+              <div class="drone-id">
+                  ${d.name}
+              </div>
+
+              <div class="drone-sub">
+                  ${d.configured_at || ''}
+              </div>
+
           </div>
           <span class="status-pill pill-${d.status}">${d.status}</span>
         </div>`;
