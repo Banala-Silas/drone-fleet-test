@@ -422,29 +422,42 @@ function renderBatchCard(s) {
   const total = (s.unconfigured || 0) + (s.configured || 0);
   const card  = document.getElementById('batch-card');
 
-  if (total === 0) { card.style.display = 'none'; }
-  else {
+  if (total === 0) {
+    card.style.display = 'none';
+  } else {
     card.style.display = 'block';
-    const pct = total > 0 ? Math.round((s.configured / total) * 100) : 0;
 
-    // Find port from first drone
+    const pct = total > 0
+      ? Math.round((s.configured / total) * 100)
+      : 0;
+
+    // Find port from first configured drone
     const portDrone = allDrones.find(d => d.port_id);
-    const port      = portDrone ? portDrone.port_id : '—';
+    const port = portDrone ? portDrone.port_id : '—';
 
-    // Find id range of current batch
-    const ids = allDrones.map(d => d.id).sort();
-    const rangeLabel = ids.length ? `${ids[0]} – ${ids[ids.length-1]}` : '—';
+    // Sort drones by Drone Name (D - 0001, D - 0002...)
+    const sortedDrones = [...allDrones].sort((a, b) =>
+      a.name.localeCompare(b.name, undefined, { numeric: true })
+    );
+
+    // Display first and last Drone Name
+    const rangeLabel = sortedDrones.length
+      ? `${sortedDrones[0].name} – ${sortedDrones[sortedDrones.length - 1].name}`
+      : '—';
 
     document.getElementById('batch-range-label').textContent = rangeLabel;
     document.getElementById('batch-port-label').textContent  = port;
     document.getElementById('progress-bar').style.width      = pct + '%';
-    document.getElementById('progress-label').textContent    = `${s.configured || 0} / ${total} configured`;
+    document.getElementById('progress-label').textContent    =
+      `${s.configured || 0} / ${total} configured`;
   }
 
   // Create button — enabled only when canCreate
   const btn = document.getElementById('create-btn');
   btn.disabled = !canCreate;
-  btn.title    = canCreate ? '' : 'Configure all current drones before creating a new batch';
+  btn.title = canCreate
+    ? ''
+    : 'Configure all current drones before creating a new batch';
 }
 
 // ── RENDER LIST ──
