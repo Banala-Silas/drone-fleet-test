@@ -101,7 +101,10 @@
     .info-icon{font-size:40px;margin-bottom:12px}
     .info-title{font-size:17px;font-weight:700;margin-bottom:6px}
     .info-sub{font-size:14px;color:var(--text2);line-height:1.5;margin-bottom:20px}
-    .info-close{padding:12px 32px;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;border:1.5px solid}
+    .info-actions{display:flex;gap:10px;justify-content:center;margin-top:10px}
+    .info-close{flex:1;padding:12px 14px;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;border:1.5px solid}
+    .info-retest{flex:1;display:none;padding:12px 14px;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;border:1.5px solid var(--blue-rft);background:var(--blue-rft);color:white}
+    .info-retest:active{opacity:0.8}
 
     .sync-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
     .sync-btn{font-size:12px;color:var(--pink);background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;font-weight:600}
@@ -313,6 +316,7 @@
 </head>
 <body>
 
+<!-- SETUP SCREEN -->
 <div id="setup-screen" class="hidden">
   <div id="setup-card">
     <div class="setup-logo">
@@ -337,6 +341,7 @@
   </div>
 </div>
 
+<!-- MAIN APP -->
 <div id="app">
   <header>
     <div class="header-left">
@@ -362,6 +367,7 @@
 
   <div id="fleet-panel" class="hidden">
     <div class="fleet-header">
+      <!-- 7 METRIC CARDS TRACKING STAGES -->
       <div class="summary-scroll-wrap">
         <div class="summary-scroll">
           <div class="summary">
@@ -397,16 +403,21 @@
   </div>
 </div>
 
+<!-- INFO POPUP -->
 <div id="info-popup">
   <div class="info-backdrop" onclick="closeInfoPopup()"></div>
   <div class="info-box">
     <div class="info-icon" id="info-icon">🛈</div>
     <div class="info-title" id="info-title">Status Notice</div>
     <div class="info-sub" id="info-sub">Notice detail text.</div>
-    <button class="info-close" id="info-close-btn" onclick="closeInfoPopup()">OK, Got it</button>
+    <div class="info-actions">
+      <button class="info-close" id="info-close-btn" onclick="closeInfoPopup()">OK, Got it</button>
+      <button class="info-retest" id="info-retest-btn" onclick="confirmRetest()">Yes, Retest</button>
+    </div>
   </div>
 </div>
 
+<!-- UPDATE BOTTOM SHEET -->
 <div id="update-sheet">
   <div class="sheet-backdrop" onclick="closeSheet()"></div>
   <div class="sheet-body">
@@ -434,6 +445,7 @@
   </div>
 </div>
 
+<!-- BATCH BAR (Optimized for functional checks step) -->
 <div id="batch-bar">
   <div class="batch-label" id="batch-label">0 selected</div>
   <button class="batch-good-btn" onclick="batchMarkGood()">✓ Send to Animation</button>
@@ -481,7 +493,7 @@ const STATUS_COLORS = {
 const STATUS_OPTIONS_MAP = {
   'Ready for Testing':   ['Ready for Animation', 'Unqualified'], // Test 1: Operator tests
   'Ready for Animation': ['Qualified', 'Unqualified'],           // Test 2: Run Animation
-  'Qualified':           [],                                     // Final state: locked
+  'Qualified':           [],                                     // Final state: locked (Managed by Info Popup instead)
   'Unqualified':         [],                                     // Locked: Handed over to tech
   'Work In Progress':    [],                                     // Locked: Tech repairing
   'Unconfigured':        []                                      // Locked: Config App only
@@ -512,14 +524,22 @@ let currentTab = 'fleet', sheetDrone = null, sheetStatus = null, sheetReason = n
 let lastSync = null, demoMode = false, searchQuery = '', currentPage = 1, filteredDrones = [], recentlyUpdatedDrone = null;
 let selectMode = false, selectedIds = new Set(), longPressTimer = null;
 
+// Helper function to calculate exact days ago
+function getDaysAgo(dateString) {
+  if (!dateString) return 0;
+  const d = new Date(dateString);
+  const today = new Date();
+  d.setHours(0,0,0,0); today.setHours(0,0,0,0);
+  return Math.floor((today - d) / 86400000);
+}
+
 function getLastTestLabel(lastTested) {
   if (!lastTested) return "";
   const d = new Date(lastTested);
-  const today = new Date();
-  d.setHours(0,0,0,0); today.setHours(0,0,0,0);
-  const diffDays = Math.floor((today - d) / 86400000);
-  if (diffDays <= 0) return `Last Status: Today`;
   const formattedDate = String(d.getDate()).padStart(2,'0')+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+d.getFullYear();
+  const diffDays = getDaysAgo(lastTested);
+  
+  if (diffDays <= 0) return `Last Status: Today`;
   return `Last Status: ${formattedDate}<br><span class="days-ago">(${diffDays} Day${diffDays>1?'s':''} Ago)</span>`;
 }
 
@@ -793,7 +813,10 @@ function openSheet(encodedId) {
     return;
   }
   if (sheetDrone.status === 'Qualified') {
-    showInfoPopup('✓', 'Qualified Asset', `"${sheetDrone.name}" is in its final passing state and ready for operational deployment.`, '#eaf3de', '#29ba74', '#3B6D11');
+    const daysAgo = getDaysAgo(sheetDrone.updated || sheetDrone.lastTested);
+    const dayStr = daysAgo === 1 ? '1 day' : `${daysAgo} days`;
+    
+    showInfoPopup('✓', 'Qualified Asset', `This drone was tested ${dayStr} ago. Do you want to retest it again?`, '#eaf3de', '#29ba74', '#3B6D11', true);
     return;
   }
 
@@ -816,17 +839,55 @@ function openSheet(encodedId) {
   document.getElementById('update-sheet').classList.add('open');
 }
 
-function showInfoPopup(icon, title, sub, bg, borderColor, textColor) {
+// Updated Info Popup configuration helper function
+function showInfoPopup(icon, title, sub, bg, borderColor, textColor, showRetest = false) {
   document.getElementById('info-icon').textContent = icon;
   document.getElementById('info-title').textContent = title;
   document.getElementById('info-title').style.color = textColor;
   document.getElementById('info-sub').textContent = sub;
-  const btn = document.getElementById('info-close-btn');
-  btn.style.background = bg; btn.style.borderColor = borderColor; btn.style.color = textColor;
+  
+  const closeBtn = document.getElementById('info-close-btn');
+  closeBtn.style.background = bg; 
+  closeBtn.style.borderColor = borderColor; 
+  closeBtn.style.color = textColor;
+  
+  const retestBtn = document.getElementById('info-retest-btn');
+  if (showRetest) {
+    retestBtn.style.display = 'block';
+    closeBtn.textContent = 'No, Cancel';
+  } else {
+    retestBtn.style.display = 'none';
+    closeBtn.textContent = 'OK, Got it';
+  }
+  
   document.getElementById('info-popup').classList.add('open');
 }
+
 function closeInfoPopup() { document.getElementById('info-popup').classList.remove('open'); }
 function closeSheet() { document.getElementById('update-sheet').classList.remove('open'); }
+
+// Function to handle the retest loop back directly to "Ready for Testing"
+async function confirmRetest() {
+  if (!sheetDrone) return;
+  const btn = document.getElementById('info-retest-btn');
+  btn.textContent = 'Processing...'; btn.disabled = true;
+  
+  try {
+    await writeDrone(sheetDrone, 'Ready for Testing', '', 'Retest requested');
+    history.push({ drone: sheetDrone.name, status: 'Ready for Testing', reason: '', notes: 'Manual Retest Initiated', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
+    localStorage.setItem('droneHistory', JSON.stringify(history));
+    
+    closeInfoPopup();
+    showToast(`✓ ${sheetDrone.name} sent back to Ready for Testing`, 'success');
+    updateSummary(); 
+    applyFilterAndRender();
+  } catch(e) {
+    showToast('Retest failed: ' + e.message, 'error');
+  }
+  
+  btn.textContent = 'Yes, Retest'; 
+  btn.disabled = false;
+}
 
 function selectStatus(s) {
   sheetStatus = s; sheetReason = null;
