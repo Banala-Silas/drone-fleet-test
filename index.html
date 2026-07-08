@@ -14,10 +14,16 @@
       --pink:#e0185a; --pink-light:#fbeaf0; --pink-dark:#b0103e;
       --bg:#f5f5f5; --surface:#fff; --surface2:#f8f8f8;
       --border:rgba(0,0,0,.10); --text:#1a1a1a; --text2:#666; --text3:#999;
-      --green:#29ba74; --red:#e24b4a; --amber:#ef9f27;
-      --blue-rft:#2d3a8c;
-      --blue-rfa:#0284c7;
-      --purple:#7c5cbf;
+      
+      /* Updated Exact Hex Codes */
+      --unconf-light: #E5DEFD;  --unconf-dark: #5B21B6;
+      --rft-light: #D3E3FD;     --rft-dark: #1D4ED8;
+      --rfa-light: #D1F1E6;     --rfa-dark: #047857;
+      --wip-light: #FDEDD6;     --wip-dark: #C2410C;
+      --fail-light: #FDDADE;    --fail-dark: #B91C1C;
+      --rep-light: #CDEDEA;     --rep-dark: #0D9488;
+      --qual-light: #DFF0DE;    --qual-dark: #15803D;
+
       --radius:10px; --radius-sm:6px;
     }
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -80,18 +86,18 @@
     
     .stat-total .stat-num{color:#4a6fa5}
     .stat-total{border-top:3px solid #4a6fa5}
-    .stat-good .stat-num{color:var(--green)}
-    .stat-good{border-top:3px solid var(--green)}
-    .stat-fail .stat-num{color:var(--red)}
-    .stat-fail{border-top:3px solid var(--red)}
-    .stat-rft .stat-num{color:var(--blue-rft)}
-    .stat-rft{border-top:3px solid var(--blue-rft)}
-    .stat-rfa .stat-num{color:var(--blue-rfa)}
-    .stat-rfa{border-top:3px solid var(--blue-rfa)}
-    .stat-wip .stat-num{color:#c95e00}
-    .stat-wip{border-top:3px solid #ef7b27}
-    .stat-unconf .stat-num{color:var(--purple)}
-    .stat-unconf{border-top:3px solid var(--purple)}
+    .stat-good .stat-num{color:var(--qual-dark)}
+    .stat-good{border-top:3px solid var(--qual-dark)}
+    .stat-fail .stat-num{color:var(--fail-dark)}
+    .stat-fail{border-top:3px solid var(--fail-dark)}
+    .stat-rft .stat-num{color:var(--rft-dark)}
+    .stat-rft{border-top:3px solid var(--rft-dark)}
+    .stat-rfa .stat-num{color:var(--rfa-dark)}
+    .stat-rfa{border-top:3px solid var(--rfa-dark)}
+    .stat-wip .stat-num{color:var(--wip-dark)}
+    .stat-wip{border-top:3px solid var(--wip-dark)}
+    .stat-unconf .stat-num{color:var(--unconf-dark)}
+    .stat-unconf{border-top:3px solid var(--unconf-dark)}
 
     /* WIP / INFO POPUP */
     #info-popup{position:fixed;inset:0;z-index:80;display:none;align-items:flex-end;justify-content:center}
@@ -103,7 +109,7 @@
     .info-sub{font-size:14px;color:var(--text2);line-height:1.5;margin-bottom:20px}
     .info-actions{display:flex;gap:10px;justify-content:center;margin-top:10px}
     .info-close{flex:1;padding:12px 14px;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;border:1.5px solid}
-    .info-retest{flex:1;display:none;padding:12px 14px;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;border:1.5px solid var(--blue-rft);background:var(--blue-rft);color:white}
+    .info-retest{flex:1;display:none;padding:12px 14px;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;border:1.5px solid var(--rft-dark);background:var(--rft-dark);color:white}
     .info-retest:active{opacity:0.8}
 
     .sync-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
@@ -143,12 +149,13 @@
 
     /* STATUS PILLS */
     .status-pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap}
-    .pill-Qualified{background:#eaf3de;color:#3B6D11}
-    .pill-Unqualified{background:#fcebeb;color:#A32D2D}
-    .pill-Unconfigured{background:#f0ebfa;color:#5a3d91}
-    .pill-Ready-for-Testing{background:#eaecf8;color:#2d3a8c}
-    .pill-Ready-for-Animation{background:#e0f2fe;color:#0369a1}
-    .pill-Work-In-Progress{background:#fff0e0;color:#c95e00}
+    .pill-Qualified{background:var(--qual-light);color:var(--qual-dark)}
+    .pill-Unqualified{background:var(--fail-light);color:var(--fail-dark)}
+    .pill-Unconfigured{background:var(--unconf-light);color:var(--unconf-dark)}
+    .pill-Ready-for-Testing{background:var(--rft-light);color:var(--rft-dark)}
+    .pill-Ready-for-Animation{background:var(--rfa-light);color:var(--rfa-dark)}
+    .pill-Work-In-Progress{background:var(--wip-light);color:var(--wip-dark)}
+    .pill-Repaired{background:var(--rep-light);color:var(--rep-dark)}
     .pill-Unknown{background:#f1efe8;color:#5f5e5a}
 
     /* PAGINATION */
@@ -161,12 +168,12 @@
     #history-content{display:block}
     .history-item{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:11px 14px;display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
     .history-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
-    .history-dot.Qualified{background:var(--green)}
-    .history-dot.Unqualified{background:var(--red)}
-    .history-dot.Unconfigured{background:var(--purple)}
-    .history-dot.Ready-for-Testing{background:var(--blue-rft)}
-    .history-dot.Ready-for-Animation{background:var(--blue-rfa)}
-    .history-dot.Work-In-Progress{background:#ef7b27}
+    .history-dot.Qualified{background:var(--qual-dark)}
+    .history-dot.Unqualified{background:var(--fail-dark)}
+    .history-dot.Unconfigured{background:var(--unconf-dark)}
+    .history-dot.Ready-for-Testing{background:var(--rft-dark)}
+    .history-dot.Ready-for-Animation{background:var(--rfa-dark)}
+    .history-dot.Work-In-Progress{background:var(--wip-dark)}
     .history-drone{font-size:13px;font-weight:600;color:var(--text)}
     .history-detail{font-size:12px;color:var(--text2);margin-top:1px}
     .history-time{font-size:11px;color:var(--text3);margin-left:auto;flex-shrink:0}
@@ -190,18 +197,18 @@
     .status-option .opt-label{font-size:13px;font-weight:600;color:var(--text2)}
     .status-option .opt-dot{width:10px;height:10px;border-radius:50%;margin:0 auto 5px}
     
-    .status-option.sel-Ready-for-Animation{border-color:var(--blue-rfa);background:#e0f2fe}
-    .status-option.sel-Ready-for-Animation .opt-label{color:#0369a1}
-    .status-option.sel-Qualified{border-color:var(--green);background:#eaf3de}
-    .status-option.sel-Qualified .opt-label{color:#3B6D11}
-    .status-option.sel-Unqualified{border-color:var(--red);background:#fcebeb}
-    .status-option.sel-Unqualified .opt-label{color:#A32D2D}
+    .status-option.sel-Ready-for-Animation{border-color:var(--rfa-dark);background:var(--rfa-light)}
+    .status-option.sel-Ready-for-Animation .opt-label{color:var(--rfa-dark)}
+    .status-option.sel-Qualified{border-color:var(--qual-dark);background:var(--qual-light)}
+    .status-option.sel-Qualified .opt-label{color:var(--qual-dark)}
+    .status-option.sel-Unqualified{border-color:var(--fail-dark);background:var(--fail-light)}
+    .status-option.sel-Unqualified .opt-label{color:var(--fail-dark)}
 
     .reason-grid{display:flex;flex-direction:column;gap:6px}
     .reason-option{padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px}
-    .reason-option.selected{border-color:var(--red);background:#fcebeb;color:#A32D2D;font-weight:600}
+    .reason-option.selected{border-color:var(--fail-dark);background:var(--fail-light);color:var(--fail-dark);font-weight:600}
     .reason-radio{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center}
-    .reason-option.selected .reason-radio{background:var(--red);border-color:var(--red)}
+    .reason-option.selected .reason-radio{background:var(--fail-dark);border-color:var(--fail-dark)}
     .reason-option.selected .reason-radio::after{content:'';width:5px;height:5px;border-radius:50%;background:white}
     .reason-option span{pointer-events:none}
     .notes-input{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;color:var(--text);background:var(--surface2);outline:none;resize:none;font-family:inherit}
@@ -212,11 +219,11 @@
     .submit-btn:disabled{opacity:.4;cursor:not-allowed}
     .submit-btn:not(:disabled):active{background:var(--pink-dark)}
 
-    /* BATCH BAR */
+    /* BATCH BAR (Dynamic Actions) */
     #batch-bar{position:fixed;bottom:0;left:0;right:0;background:#1a1a2e;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:none;align-items:center;gap:10px;z-index:40;max-width:480px;margin:0 auto}
     #batch-bar.visible{display:flex}
     .batch-label{font-size:14px;font-weight:600;color:rgba(255,255,255,.8);flex:1}
-    .batch-good-btn{padding:11px 18px;background:var(--blue-rfa);color:white;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:700;cursor:pointer}
+    .batch-action-btn{padding:11px 18px;color:white;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:700;cursor:pointer}
     .batch-cancel-btn{padding:11px 14px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.75);border:none;border-radius:var(--radius-sm);font-size:13px;cursor:pointer}
 
     .select-hint{font-size:11px;color:var(--text3);text-align:center;padding:4px 0 6px;display:none}
@@ -224,8 +231,8 @@
 
     #toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1a1a;color:white;padding:10px 18px;border-radius:24px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;z-index:200}
     #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-    #toast.success{background:var(--green)}
-    #toast.error{background:var(--red)}
+    #toast.success{background:var(--qual-dark)}
+    #toast.error{background:var(--fail-dark)}
 
     .spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--pink);border-radius:50%;animation:spin .7s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
@@ -316,7 +323,6 @@
 </head>
 <body>
 
-<!-- SETUP SCREEN -->
 <div id="setup-screen" class="hidden">
   <div id="setup-card">
     <div class="setup-logo">
@@ -341,7 +347,6 @@
   </div>
 </div>
 
-<!-- MAIN APP -->
 <div id="app">
   <header>
     <div class="header-left">
@@ -367,7 +372,6 @@
 
   <div id="fleet-panel" class="hidden">
     <div class="fleet-header">
-      <!-- 7 METRIC CARDS TRACKING STAGES -->
       <div class="summary-scroll-wrap">
         <div class="summary-scroll">
           <div class="summary">
@@ -403,7 +407,6 @@
   </div>
 </div>
 
-<!-- INFO POPUP -->
 <div id="info-popup">
   <div class="info-backdrop" onclick="closeInfoPopup()"></div>
   <div class="info-box">
@@ -417,7 +420,6 @@
   </div>
 </div>
 
-<!-- UPDATE BOTTOM SHEET -->
 <div id="update-sheet">
   <div class="sheet-backdrop" onclick="closeSheet()"></div>
   <div class="sheet-body">
@@ -445,10 +447,9 @@
   </div>
 </div>
 
-<!-- BATCH BAR (Optimized for functional checks step) -->
 <div id="batch-bar">
   <div class="batch-label" id="batch-label">0 selected</div>
-  <button class="batch-good-btn" onclick="batchMarkGood()">✓ Send to Animation</button>
+  <button class="batch-action-btn" id="batch-action-btn" onclick="executeBatchAction()">Action</button>
   <button class="batch-cancel-btn" onclick="exitSelectMode()">✕ Cancel</button>
 </div>
 
@@ -481,28 +482,29 @@ const STATUS_DISPLAY = {
 };
 
 const STATUS_COLORS = {
-  'Unconfigured':       '#7c5cbf',
-  'Ready for Testing':  '#2d3a8c',
-  'Ready for Animation':'#0284c7',
-  'Qualified':          '#29ba74',
-  'Unqualified':        '#e24b4a',
-  'Work In Progress':   '#ef7b27'
+  'Unconfigured':       '#5B21B6',
+  'Ready for Testing':  '#1D4ED8',
+  'Ready for Animation':'#047857',
+  'Qualified':          '#15803D',
+  'Unqualified':        '#B91C1C',
+  'Work In Progress':   '#C2410C',
+  'Repaired':           '#0D9488'
 };
 
 // Forward chronological pipeline progression mapping rules
 const STATUS_OPTIONS_MAP = {
-  'Ready for Testing':   ['Ready for Animation', 'Unqualified'], // Test 1: Operator tests
-  'Ready for Animation': ['Qualified', 'Unqualified'],           // Test 2: Run Animation
-  'Qualified':           [],                                     // Final state: locked (Managed by Info Popup instead)
-  'Unqualified':         [],                                     // Locked: Handed over to tech
-  'Work In Progress':    [],                                     // Locked: Tech repairing
-  'Unconfigured':        []                                      // Locked: Config App only
+  'Ready for Testing':   ['Ready for Animation', 'Unqualified'], 
+  'Ready for Animation': ['Qualified', 'Unqualified'],           
+  'Qualified':           [],                                     
+  'Unqualified':         [],                                     
+  'Work In Progress':    [],                                     
+  'Unconfigured':        []                                      
 };
 
 const OPTION_COLORS = {
-  'Ready for Animation': '#0284c7',
-  'Qualified':          '#29ba74',
-  'Unqualified':        '#e24b4a'
+  'Ready for Animation': '#047857',
+  'Qualified':          '#15803D',
+  'Unqualified':        '#B91C1C'
 };
 
 const OPTION_DISPLAY = {
@@ -522,7 +524,9 @@ let drones = [];
 let history = JSON.parse(localStorage.getItem('droneHistory') || '[]');
 let currentTab = 'fleet', sheetDrone = null, sheetStatus = null, sheetReason = null;
 let lastSync = null, demoMode = false, searchQuery = '', currentPage = 1, filteredDrones = [], recentlyUpdatedDrone = null;
-let selectMode = false, selectedIds = new Set(), longPressTimer = null;
+
+// Select State
+let selectMode = false, selectedIds = new Set(), selectStatusType = null, longPressTimer = null;
 
 // Helper function to calculate exact days ago
 function getDaysAgo(dateString) {
@@ -685,7 +689,7 @@ function applyFilterAndRender() {
       const key = encodeURIComponent(d.id||d.name);
       const isSelected = selectedIds.has(d.id||d.name);
       const isUpdated = recentlyUpdatedDrone===(d.id||d.name);
-      const animColor = d.status==='Unqualified'?'rgba(226,75,74,.6)':d.status==='Qualified'?'rgba(41,186,116,.6)':'rgba(2,132,199,.6)';
+      const animColor = d.status==='Unqualified'?'rgba(185,28,28,.6)':d.status==='Qualified'?'rgba(21,128,61,.6)':'rgba(4,120,87,.6)';
 
       html += `<div class="drone-card${isSelected?' multi-selected':''}${isUpdated?' updated-card':''}"
         style="${isUpdated?`--anim-color:${animColor};`:''}" data-key="${key}" data-id="${d.id||d.name}"
@@ -733,18 +737,24 @@ function cancelLongPress() { if (longPressTimer) { clearTimeout(longPressTimer);
 
 function enterSelectMode(firstId) {
   const d = drones.find(x => (x.id||x.name)===firstId);
-  if (!d || d.status !== 'Ready for Testing') {
-    showToast("Bulk action only available for 'Ready for Testing' drones", "error");
+  if (!d || (d.status !== 'Ready for Testing' && d.status !== 'Ready for Animation')) {
+    showToast("Bulk action only available for 'Ready for Testing' or 'Ready for Animation'", "error");
     return;
   }
-  selectMode = true; selectedIds.clear(); selectedIds.add(firstId);
+  selectMode = true; 
+  selectStatusType = d.status;
+  selectedIds.clear(); 
+  selectedIds.add(firstId);
   document.getElementById('select-hint').classList.remove('visible');
   updateBatchBar(); applyFilterAndRender();
 }
 
 function exitSelectMode() {
-  selectMode = false; selectedIds.clear();
-  document.getElementById('batch-bar').classList.remove('remove').style.display = 'none';
+  selectMode = false; 
+  selectedIds.clear();
+  selectStatusType = null;
+  document.getElementById('batch-bar').classList.remove('visible');
+  document.getElementById('batch-bar').style.display = 'none';
   document.getElementById('select-hint').classList.add('visible');
   applyFilterAndRender();
 }
@@ -756,8 +766,8 @@ function handleCardTap(key) {
     if (selectedIds.has(id)) selectedIds.delete(id);
     else {
       const d = drones.find(x => (x.id||x.name)===id);
-      if(d && d.status === 'Ready for Testing') selectedIds.add(id);
-      else showToast("Can only batch-select drones in 'Ready for Testing'", "error");
+      if(d && d.status === selectStatusType) selectedIds.add(id);
+      else showToast(`Can only batch-select drones currently in '${selectStatusType}'`, "error");
     }
     if (selectedIds.size === 0) exitSelectMode();
     else { updateBatchBar(); applyFilterAndRender(); }
@@ -767,30 +777,51 @@ function handleCardTap(key) {
 function updateBatchBar() {
   const cnt = selectedIds.size;
   const bar = document.getElementById('batch-bar');
-  if(cnt > 0) { bar.style.display = 'flex'; bar.classList.add('visible'); }
+  const actionBtn = document.getElementById('batch-action-btn');
+  
+  if(cnt > 0) { 
+    bar.style.display = 'flex'; 
+    bar.classList.add('visible'); 
+    
+    if (selectStatusType === 'Ready for Testing') {
+        actionBtn.textContent = '✓ Send to Animation';
+        actionBtn.style.background = 'var(--rfa-dark)';
+    } else if (selectStatusType === 'Ready for Animation') {
+        actionBtn.textContent = '✓ Mark Qualified';
+        actionBtn.style.background = 'var(--qual-dark)';
+    }
+  } else {
+    bar.style.display = 'none';
+    bar.classList.remove('visible');
+  }
   document.getElementById('batch-label').textContent = `${cnt} drone${cnt!==1?'s':''} selected`;
 }
 
-async function batchMarkGood() {
+async function executeBatchAction() {
   const ids = [...selectedIds];
   if (!ids.length) return;
 
+  const targetStatus = selectStatusType === 'Ready for Testing' ? 'Ready for Animation' : 'Qualified';
+
+  // Optimistic UI update
   ids.forEach(id => {
     const idx = drones.findIndex(d => (d.id||d.name)===id);
-    if (idx>=0) { drones[idx].status='Ready for Animation'; drones[idx].updated=new Date().toISOString(); }
+    if (idx>=0) { drones[idx].status=targetStatus; drones[idx].updated=new Date().toISOString(); }
   });
 
-  exitSelectMode(); updateSummary(); applyFilterAndRender();
-  showToast(`✓ ${ids.length} drones advanced to Ready for Animation`, 'success');
+  exitSelectMode(); 
+  updateSummary(); 
+  applyFilterAndRender();
+  showToast(`✓ ${ids.length} drones advanced to ${targetStatus}`, 'success');
 
   ids.forEach(id => {
-    history.push({ drone:id, status:'Ready for Animation', reason:'', notes:'', time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) });
+    history.push({ drone:id, status:targetStatus, reason:'', notes:'Batch updated', time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) });
   });
   localStorage.setItem('droneHistory', JSON.stringify(history));
 
   if (demoMode) { localStorage.setItem('droneDemoData', JSON.stringify(drones)); return; }
   try {
-    for (const id of ids) { await apiCall({ action:'updateDrone', droneId:id, status:'Ready for Animation', reason:'', notes:'' }); }
+    for (const id of ids) { await apiCall({ action:'updateDrone', droneId:id, status:targetStatus, reason:'', notes:'Batch Update' }); }
   } catch(e) { showToast('Some updates failed: '+e.message, 'error'); }
 }
 
@@ -801,22 +832,22 @@ function openSheet(encodedId) {
 
   // Intercept states managed outside the Operator application pipeline boundaries
   if (sheetDrone.status === 'Work In Progress') {
-    showInfoPopup('🟠', 'Work In Progress', `"${sheetDrone.name}" is currently inside the technical workshop for maintenance repair.`, '#fff0e0', '#ef7b27', '#c95e00');
+    showInfoPopup('🟠', 'Work In Progress', `"${sheetDrone.name}" is currently inside the technical workshop for maintenance repair.`, 'var(--wip-light)', 'var(--wip-dark)', 'var(--wip-dark)');
     return;
   }
   if (sheetDrone.status === 'Unconfigured') {
-    showInfoPopup('⚙️', 'Unconfigured Asset', `"${sheetDrone.name}" requires operational profiling setup inside the Configuration interface.`, '#f0ebfa', '#7c5cbf', '#5a3d91');
+    showInfoPopup('⚙️', 'Unconfigured Asset', `"${sheetDrone.name}" requires operational profiling setup inside the Configuration interface.`, 'var(--unconf-light)', 'var(--unconf-dark)', 'var(--unconf-dark)');
     return;
   }
   if (sheetDrone.status === 'Unqualified') {
-    showInfoPopup('🔴', 'Unqualified (Awaiting Handover)', `"${sheetDrone.name}" failed verification testing and is queued for Technician handover.`, '#fcebeb', '#e24b4a', '#A32D2D');
+    showInfoPopup('🔴', 'Unqualified (Awaiting Handover)', `"${sheetDrone.name}" failed verification testing and is queued for Technician handover.`, 'var(--fail-light)', 'var(--fail-dark)', 'var(--fail-dark)');
     return;
   }
   if (sheetDrone.status === 'Qualified') {
     const daysAgo = getDaysAgo(sheetDrone.updated || sheetDrone.lastTested);
-    const dayStr = daysAgo === 1 ? '1 day' : `${daysAgo} days`;
+    let timeText = daysAgo === 0 ? "today" : daysAgo === 1 ? "1 day ago" : `${daysAgo} days ago`;
     
-    showInfoPopup('✓', 'Qualified Asset', `This drone was tested ${dayStr} ago. Do you want to retest it again?`, '#eaf3de', '#29ba74', '#3B6D11', true);
+    showInfoPopup('✓', 'Qualified Asset', `This drone was tested ${timeText}. Do you want to retest it again?`, 'var(--qual-light)', 'var(--qual-dark)', 'var(--qual-dark)', true);
     return;
   }
 
