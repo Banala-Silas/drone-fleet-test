@@ -12,16 +12,16 @@
   <style>
     :root {
       --pink:#e0185a; --pink-light:#fbeaf0; --pink-dark:#b0103e;
-      --bg:#f5f5f5; --surface:#fff; --surface2:#f8f8f8;
+      --bg:#ffffff; /* Completely white app background */
+      --surface:#fff; --surface2:#f8f8f8;
       --border:rgba(0,0,0,.10); --text:#1a1a1a; --text2:#666; --text3:#999;
       
-      /* Updated Exact Hex Codes */
+      /* Exact Hex Codes */
       --unconf-light: #E5DEFD;  --unconf-dark: #5B21B6;
       --rft-light: #D3E3FD;     --rft-dark: #1D4ED8;
       --rfa-light: #D1F1E6;     --rfa-dark: #047857;
       --wip-light: #FDEDD6;     --wip-dark: #C2410C;
       --fail-light: #FDDADE;    --fail-dark: #B91C1C;
-      --rep-light: #CDEDEA;     --rep-dark: #0D9488;
       --qual-light: #DFF0DE;    --qual-dark: #15803D;
 
       --radius:10px; --radius-sm:6px;
@@ -74,13 +74,18 @@
     #loading-panel{flex:1;display:none;align-items:center;justify-content:center}
     #loading-panel.visible{display:flex}
 
-    /* SUMMARY HORIZONTAL SCROLL */
+    /* SUMMARY HORIZONTAL SCROLL & FILTERS */
     .summary-scroll-wrap{position:relative;margin:0 0 10px}
     .summary-scroll-wrap::after{content:'';position:absolute;top:0;right:0;width:32px;height:100%;background:linear-gradient(to right,transparent,var(--bg));pointer-events:none;border-radius:0 var(--radius) var(--radius) 0}
-    .summary-scroll{overflow-x:auto;padding:0 14px;scrollbar-width:none}
+    .summary-scroll{overflow-x:auto;padding:0 14px 10px;scrollbar-width:none}
     .summary-scroll::-webkit-scrollbar{display:none}
     .summary{display:flex;gap:8px;width:max-content;padding-bottom:2px;padding-right:28px}
-    .stat-card{background:var(--surface);border-radius:var(--radius);padding:12px 10px;text-align:center;border:1px solid var(--border);min-width:calc((100vw - 42px) / 3.1);flex-shrink:0}
+    .stat-card{background:var(--surface);border-radius:var(--radius);padding:12px 10px;text-align:center;border:1px solid var(--border);min-width:calc((100vw - 42px) / 3.1);flex-shrink:0;cursor:pointer;transition:all 0.2s ease;}
+    
+    /* Active & Dimmed states for filters */
+    .stat-card.dimmed { opacity: 0.4; transform: scale(0.96); }
+    .stat-card.active { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-width: 2px; }
+
     .stat-num{font-size:24px;font-weight:700;line-height:1}
     .stat-label{font-size:10px;color:var(--text2);margin-top:4px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
     
@@ -122,41 +127,61 @@
     #drone-search{width:100%;padding:9px 12px 9px 32px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:16px;color:var(--text);outline:none}
     #drone-search:focus{border-color:var(--pink)}
 
-    .list-meta{font-size:12px;color:var(--text2);margin-bottom:8px;font-weight:500}
+    .list-meta{font-size:12px;color:var(--text2);margin-bottom:8px;font-weight:500;display:flex;justify-content:space-between}
+    .clear-filter-btn{color:var(--pink);background:none;border:none;font-weight:600;font-size:12px;cursor:pointer;display:none;}
+    .clear-filter-btn.visible{display:block;}
 
-    /* DRONE CARDS */
+    /* FULL COLORED DRONE CARDS */
     #drone-list-container{display:block}
-    .drone-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .15s;margin-bottom:8px;user-select:none;-webkit-user-select:none}
-    .drone-card:active{background:var(--surface2)}
-    .drone-card.multi-selected{border-color:var(--pink);background:var(--pink-light)}
-    .drone-avatar{width:38px;height:38px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
-    .drone-avatar .check-overlay{position:absolute;inset:0;border-radius:10px;background:var(--pink);display:none;align-items:center;justify-content:center}
+    .drone-card{
+      border-radius:var(--radius);
+      border:1.5px solid transparent; /* controlled by inline style */
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      cursor:pointer;
+      margin-bottom:10px;
+      user-select:none;
+      -webkit-user-select:none;
+      transition:transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .drone-card:active{transform:scale(0.98);}
+    .drone-card.multi-selected{
+      box-shadow: 0 0 0 3px var(--pink); /* Selection outline overrides border visually */
+      transform: scale(1.02);
+    }
+    .drone-avatar{
+      width:38px;height:38px;
+      border-radius:10px;
+      background: rgba(255, 255, 255, 0.6); /* Translucent white to sit on colored bg */
+      border: 1.5px solid; /* color inherited from JS */
+      display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;position:relative;
+    }
+    .drone-avatar .check-overlay{position:absolute;inset:0;border-radius:8px;background:var(--pink);display:none;align-items:center;justify-content:center}
     .drone-card.multi-selected .check-overlay{display:flex}
     .check-overlay svg{width:20px;height:20px;fill:white}
     .drone-info{flex:1;min-width:0}
-    .drone-name{font-size:14px;font-weight:600;color:var(--text)}
-    .drone-group{font-size:11px;color:var(--text3);margin-top:1px}
-    .drone-last-tested{margin-top:3px;font-size:11px;color:#8a8a8a;line-height:1.3}
-    .drone-last-tested .days-ago{font-size:10px;color:#9b9b9b;font-weight:500}
+    .drone-name{font-size:15px;font-weight:700;}
+    .drone-last-tested{margin-top:3px;font-size:11px;line-height:1.3;font-weight:500;}
+    .drone-last-tested .days-ago{font-size:10px;font-weight:600;opacity:0.8;}
+
+    /* STATUS PILLS ON COLORED BG */
+    .status-pill{
+      font-size:11px;font-weight:700;padding:4px 10px;
+      border-radius:20px;white-space:nowrap;
+      background: rgba(255, 255, 255, 0.7); /* Translucent so it sits well on full color */
+      border: 1px solid;
+    }
 
     @keyframes cardUpdated{
       0%{transform:scale(1);box-shadow:0 0 0 0 transparent}
-      20%{transform:scale(1.02)}
-      50%{transform:scale(1.03);box-shadow:0 0 12px 4px var(--anim-color,rgba(41,186,116,.5))}
+      20%{transform:scale(1.04)}
+      50%{transform:scale(1.04);box-shadow:0 0 16px 6px var(--anim-color,rgba(41,186,116,.5))}
       100%{transform:scale(1)}
     }
-    .drone-card.updated-card{animation:cardUpdated 6s ease}
-
-    /* STATUS PILLS */
-    .status-pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap}
-    .pill-Qualified{background:var(--qual-light);color:var(--qual-dark)}
-    .pill-Unqualified{background:var(--fail-light);color:var(--fail-dark)}
-    .pill-Unconfigured{background:var(--unconf-light);color:var(--unconf-dark)}
-    .pill-Ready-for-Testing{background:var(--rft-light);color:var(--rft-dark)}
-    .pill-Ready-for-Animation{background:var(--rfa-light);color:var(--rfa-dark)}
-    .pill-Work-In-Progress{background:var(--wip-light);color:var(--wip-dark)}
-    .pill-Repaired{background:var(--rep-light);color:var(--rep-dark)}
-    .pill-Unknown{background:#f1efe8;color:#5f5e5a}
+    .drone-card.updated-card{animation:cardUpdated 4s ease}
 
     /* PAGINATION */
     .pagination{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 0 80px}
@@ -290,7 +315,6 @@
       .drone-card .drone-info{grid-column:1 / -1;grid-row:2;width:100%;}
       .drone-name{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       .drone-card .drone-last-tested{margin-top:1px;font-size:10px;line-height:1.2}
-      .drone-card:hover{box-shadow:0 2px 10px rgba(0,0,0,.08);border-color:rgba(0,0,0,.18)}
 
       .pagination{grid-column:1 / -1;padding:20px 0 40px;}
       .empty-msg{grid-column:1 / -1}
@@ -375,13 +399,27 @@
       <div class="summary-scroll-wrap">
         <div class="summary-scroll">
           <div class="summary">
-            <div class="stat-card stat-total"><div class="stat-num" id="cnt-total">0</div><div class="stat-label">Total</div></div>
-            <div class="stat-card stat-good"><div class="stat-num" id="cnt-good">0</div><div class="stat-label">Qualified ✔</div></div>
-            <div class="stat-card stat-rfa"><div class="stat-num" id="cnt-rfa">0</div><div class="stat-label">Ready for Anim</div></div>
-            <div class="stat-card stat-rft"><div class="stat-num" id="cnt-rft">0</div><div class="stat-label">Ready for Test</div></div>
-            <div class="stat-card stat-fail"><div class="stat-num" id="cnt-fail">0</div><div class="stat-label">Unqualified</div></div>
-            <div class="stat-card stat-wip"><div class="stat-num" id="cnt-wip">0</div><div class="stat-label">WIP (Repair)</div></div>
-            <div class="stat-card stat-unconf"><div class="stat-num" id="cnt-unconf">0</div><div class="stat-label">Unconfigured</div></div>
+            <div class="stat-card stat-total" id="filter-total" onclick="setFilter(null)">
+              <div class="stat-num" id="cnt-total">0</div><div class="stat-label">Total</div>
+            </div>
+            <div class="stat-card stat-good" id="filter-Qual" onclick="setFilter('Qualified')">
+              <div class="stat-num" id="cnt-good">0</div><div class="stat-label">Qualified ✔</div>
+            </div>
+            <div class="stat-card stat-rfa" id="filter-Rfa" onclick="setFilter('Ready for Animation')">
+              <div class="stat-num" id="cnt-rfa">0</div><div class="stat-label">Ready for Anim</div>
+            </div>
+            <div class="stat-card stat-rft" id="filter-Rft" onclick="setFilter('Ready for Testing')">
+              <div class="stat-num" id="cnt-rft">0</div><div class="stat-label">Ready for Test</div>
+            </div>
+            <div class="stat-card stat-fail" id="filter-Fail" onclick="setFilter('Unqualified')">
+              <div class="stat-num" id="cnt-fail">0</div><div class="stat-label">Unqualified</div>
+            </div>
+            <div class="stat-card stat-wip" id="filter-Wip" onclick="setFilter('Work In Progress')">
+              <div class="stat-num" id="cnt-wip">0</div><div class="stat-label">WIP (Repair)</div>
+            </div>
+            <div class="stat-card stat-unconf" id="filter-Unconf" onclick="setFilter('Unconfigured')">
+              <div class="stat-num" id="cnt-unconf">0</div><div class="stat-label">Unconfigured</div>
+            </div>
           </div>
         </div>
       </div>
@@ -397,7 +435,12 @@
         <input id="drone-search" type="text" placeholder="Search drones..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
       </div>
       <div class="select-hint" id="select-hint">💡 Long press a drone to select multiple</div>
-      <div class="list-meta" id="list-meta"></div>
+      
+      <div class="list-meta">
+        <span id="list-meta"></span>
+        <button class="clear-filter-btn" id="clear-filter-btn" onclick="setFilter(null)">Clear Filter</button>
+      </div>
+      
     </div>
     <div class="content" id="drone-list-container"></div>
   </div>
@@ -481,14 +524,14 @@ const STATUS_DISPLAY = {
   'Work In Progress':   'Work In Progress'
 };
 
-const STATUS_COLORS = {
-  'Unconfigured':       '#5B21B6',
-  'Ready for Testing':  '#1D4ED8',
-  'Ready for Animation':'#047857',
-  'Qualified':          '#15803D',
-  'Unqualified':        '#B91C1C',
-  'Work In Progress':   '#C2410C',
-  'Repaired':           '#0D9488'
+// Variable Mapping for JS rendering (Full card styles)
+const STATUS_VARS = {
+  'Unconfigured':       'unconf',
+  'Ready for Testing':  'rft',
+  'Ready for Animation':'rfa',
+  'Qualified':          'qual',
+  'Unqualified':        'fail',
+  'Work In Progress':   'wip'
 };
 
 // Forward chronological pipeline progression mapping rules
@@ -524,6 +567,9 @@ let drones = [];
 let history = JSON.parse(localStorage.getItem('droneHistory') || '[]');
 let currentTab = 'fleet', sheetDrone = null, sheetStatus = null, sheetReason = null;
 let lastSync = null, demoMode = false, searchQuery = '', currentPage = 1, filteredDrones = [], recentlyUpdatedDrone = null;
+
+// Filter State
+let currentFilter = null;
 
 // Select State
 let selectMode = false, selectedIds = new Set(), selectStatusType = null, longPressTimer = null;
@@ -651,6 +697,14 @@ function switchMainTab(tab) {
   if (tab==='fleet') showFleet(); else showHistory();
 }
 
+function setFilter(status) {
+  currentFilter = status;
+  currentPage = 1;
+  if (selectMode) exitSelectMode();
+  updateSummary(); // refreshes UI state of cards
+  applyFilterAndRender();
+}
+
 function updateSummary() {
   document.getElementById('cnt-total').textContent  = drones.length;
   document.getElementById('cnt-good').textContent   = drones.filter(d=>d.status==='Qualified').length;
@@ -661,12 +715,48 @@ function updateSummary() {
   document.getElementById('cnt-unconf').textContent = drones.filter(d=>d.status==='Unconfigured').length;
   const t = lastSync ? lastSync.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '—';
   document.getElementById('last-sync-label').textContent = `Synced ${t}`;
+
+  // Update UI visual states for Filter Cards
+  const filterMap = {
+    'Qualified': 'filter-Qual',
+    'Ready for Animation': 'filter-Rfa',
+    'Ready for Testing': 'filter-Rft',
+    'Unqualified': 'filter-Fail',
+    'Work In Progress': 'filter-Wip',
+    'Unconfigured': 'filter-Unconf'
+  };
+
+  document.querySelectorAll('.stat-card').forEach(el => {
+    el.classList.remove('active', 'dimmed');
+    if (currentFilter !== null) {
+      if (
+         (currentFilter === null && el.id === 'filter-total') ||
+         (currentFilter !== null && el.id === filterMap[currentFilter])
+      ) {
+         el.classList.add('active');
+      } else {
+         el.classList.add('dimmed');
+      }
+    } else {
+      if(el.id === 'filter-total') el.classList.add('active');
+    }
+  });
+
+  const clearBtn = document.getElementById('clear-filter-btn');
+  if (currentFilter) clearBtn.classList.add('visible');
+  else clearBtn.classList.remove('visible');
 }
 
 function applyFilterAndRender() {
   const PAGE_SIZE = getPageSize();
   const q = searchQuery.toLowerCase().trim();
-  filteredDrones = q ? drones.filter(d => d.name.toLowerCase().includes(q)||(d.group||'').toLowerCase().includes(q)||(d.id||'').toLowerCase().includes(q)) : drones;
+  
+  // Apply Search + Status Filter
+  filteredDrones = drones.filter(d => {
+    const matchesSearch = !q || d.name.toLowerCase().includes(q) || (d.group||'').toLowerCase().includes(q) || (d.id||'').toLowerCase().includes(q);
+    const matchesFilter = !currentFilter || d.status === currentFilter;
+    return matchesSearch && matchesFilter;
+  });
 
   const total = filteredDrones.length;
   const totalPages = Math.max(1,Math.ceil(total/PAGE_SIZE));
@@ -675,38 +765,46 @@ function applyFilterAndRender() {
   const pageItems = filteredDrones.slice(start, start+PAGE_SIZE);
   const end = Math.min(start+PAGE_SIZE, total);
 
-  document.getElementById('list-meta').textContent = total===0 ? 'No drones found' : `Showing ${start+1}–${end} of ${total} drones`;
+  let metaText = total===0 ? 'No drones found' : `Showing ${start+1}–${end} of ${total} drones`;
+  if (currentFilter) metaText += ` (Filtered by ${currentFilter})`;
+  document.getElementById('list-meta').textContent = metaText;
+  
   document.getElementById('select-hint').classList.toggle('visible', !selectMode && total>0);
 
   let html = '';
   if (!pageItems.length) {
-    html = '<div class="empty-msg">No drones match your search</div>';
+    html = '<div class="empty-msg">No drones match your filters</div>';
   } else {
     pageItems.forEach(d => {
       const displayStatus = STATUS_DISPLAY[d.status] || d.status || 'Unknown';
-      const pillClass = `pill-${(d.status||'Unknown').replace(/\s+/g,'-')}`;
-      const color = STATUS_COLORS[d.status] || '#888';
       const key = encodeURIComponent(d.id||d.name);
       const isSelected = selectedIds.has(d.id||d.name);
       const isUpdated = recentlyUpdatedDrone===(d.id||d.name);
+
+      // Extract colors for full-card dynamic styling
+      const varKey = STATUS_VARS[d.status] || 'unconf';
+      const lightCol = `var(--${varKey}-light)`;
+      const darkCol = `var(--${varKey}-dark)`;
+
       const animColor = d.status==='Unqualified'?'rgba(185,28,28,.6)':d.status==='Qualified'?'rgba(21,128,61,.6)':'rgba(4,120,87,.6)';
 
       html += `<div class="drone-card${isSelected?' multi-selected':''}${isUpdated?' updated-card':''}"
-        style="${isUpdated?`--anim-color:${animColor};`:''}" data-key="${key}" data-id="${d.id||d.name}"
+        style="background-color: ${lightCol}; border-color: ${darkCol}; ${isUpdated?`--anim-color:${animColor};`:''}" 
+        data-key="${key}" data-id="${d.id||d.name}"
         onclick="handleCardTap('${key}')" onmousedown="startLongPress('${key}')" ontouchstart="startLongPress('${key}')"
         onmouseup="cancelLongPress()" ontouchend="cancelLongPress()" onmouseleave="cancelLongPress()">
-        <div class="drone-avatar">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="${color}">
+        <div class="drone-avatar" style="border-color: ${darkCol};">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="${darkCol}">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5zm0-5.5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/>
           </svg>
           <div class="check-overlay"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></div>
         </div>
         <div class="drone-info">
-          <div class="drone-name">${d.name}</div>
-          ${d.group?`<div class="drone-group">${d.group} Fleet</div>`:''}
-          ${(d.updated||d.lastTested)?`<div class="drone-last-tested">${getLastTestLabel(d.updated||d.lastTested)}</div>`:''}
+          <div class="drone-name" style="color: ${darkCol};">${d.name}</div>
+          ${d.group?`<div class="drone-group" style="color: ${darkCol}; opacity: 0.8;">${d.group} Fleet</div>`:''}
+          ${(d.updated||d.lastTested)?`<div class="drone-last-tested" style="color: ${darkCol}; opacity: 0.9;">${getLastTestLabel(d.updated||d.lastTested)}</div>`:''}
         </div>
-        <span class="status-pill ${pillClass}">${displayStatus}</span>
+        <span class="status-pill" style="color: ${darkCol}; border-color: ${darkCol};">${displayStatus}</span>
       </div>`;
     });
   }
