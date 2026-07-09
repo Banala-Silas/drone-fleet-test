@@ -14,15 +14,16 @@
       --pink:#e0185a; --pink-light:#fbeaf0; --pink-dark:#b0103e;
       --bg:#ffffff; 
       --surface:#fff; --surface2:#f8f8f8;
-      --border:rgba(0,0,0,.08); --text:#1a1a1a; --text2:#666; --text3:#999;
+      --border:#CBD5E1; /* Updated subtle border from design spec */
+      --text:#1a1a1a; --text2:#666; --text3:#999;
       
-      /* Exact Hex Codes */
-      --unconf-light: #F4F1FD;  --unconf-dark: #7C3AED;
-      --rft-light: #F0F6FE;     --rft-dark: #2563EB;
-      --rfa-light: #EFFAF7;     --rfa-dark: #14B8A6;
-      --wip-light: #FEF7E8;     --wip-dark: #F59E0B;
-      --fail-light: #FEF0F1;    --fail-dark: #DC2626;
-      --qual-light: #F1F8F2;    --qual-dark: #16A34A;
+      /* Exact Hex Codes from Design Pattern */
+      --unconf-light: #F5F3FF;  --unconf-dark: #8B5CF6;
+      --rft-light: #EFF6FF;     --rft-dark: #3B82F6;
+      --rfa-light: #E8F9F0;     --rfa-dark: #22C55E;
+      --wip-light: #FFF7ED;     --wip-dark: #F59E0B;
+      --fail-light: #FEF2F2;    --fail-dark: #EF4444;
+      --qual-light: #F0FAF4;    --qual-dark: #16A34A;
 
       --radius:12px; --radius-sm:8px;
     }
@@ -106,19 +107,6 @@
     .stat-unconf .stat-num{color:var(--unconf-dark)}
     .stat-unconf{border-top:3px solid var(--unconf-dark)}
 
-    /* WIP / INFO POPUP */
-    #info-popup{position:fixed;inset:0;z-index:80;display:none;align-items:flex-end;justify-content:center}
-    #info-popup.open{display:flex}
-    .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.3)}
-    .info-box{position:relative;background:var(--surface);border-radius:20px 20px 0 0;padding:24px 20px 36px;width:100%;max-width:480px;text-align:center;animation:slideUp .2s ease; transition: border-top 0.2s ease;}
-    .info-icon{font-size:40px;margin-bottom:12px}
-    .info-title{font-size:17px;font-weight:700;margin-bottom:6px}
-    .info-sub{font-size:14px;color:var(--text2);line-height:1.5;margin-bottom:20px}
-    .info-actions{display:flex;gap:10px;justify-content:center;margin-top:10px}
-    .info-close{flex:1;padding:12px 14px;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;border:1.5px solid}
-    .info-retest{flex:1;display:none;padding:12px 14px;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;border:1.5px solid var(--rft-dark);background:var(--rft-dark);color:white}
-    .info-retest:active{opacity:0.8}
-
     .sync-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
     .sync-btn{font-size:12px;color:var(--pink);background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;font-weight:600}
     .sync-btn svg{width:14px;height:14px;fill:var(--pink)}
@@ -126,63 +114,114 @@
 
     .search-wrap{position:relative;margin-bottom:8px}
     .search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:16px;height:16px;fill:var(--text3);pointer-events:none}
-    #drone-search{width:100%;padding:9px 12px 9px 32px;background:var(--surface);border:1px solid #e0e0e0;border-radius:var(--radius-sm);font-size:16px;color:var(--text);outline:none}
+    #drone-search{width:100%;padding:9px 12px 9px 32px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:16px;color:var(--text);outline:none}
     #drone-search:focus{border-color:var(--pink)}
 
     .list-meta{font-size:12px;color:var(--text2);margin-bottom:10px;font-weight:500;display:flex;justify-content:space-between; align-items:center;}
     .clear-filter-btn{color:var(--pink);background:none;border:1px solid var(--pink); border-radius:12px; padding: 4px 10px; font-weight:600; font-size:11px; cursor:pointer; display:none;}
     .clear-filter-btn.visible{display:block;}
 
-    /* MOBILE DRONE CARDS */
-    #drone-list-container{display:block}
-    .drone-card{
+    /* -------------------------------------------------------------
+       NEW VERTICAL DRONE CARD PATTERN 
+       ------------------------------------------------------------- */
+    #drone-list-container {
+      display: grid;
+      /* Auto-adapts: 2 cols on mobile, 4-6 on desktop */
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 14px;
+      padding-bottom: 20px;
+    }
+
+    .drone-card {
       background: #ffffff;
       border-radius: var(--radius);
-      border: 1px solid #eaeaea;
-      padding: 14px 16px;
+      border: 1px solid var(--border);
       display: flex;
-      align-items: center;
-      gap: 14px;
+      flex-direction: column;
+      overflow: hidden;
       cursor: pointer;
-      margin-bottom: 12px;
       user-select: none;
       -webkit-user-select: none;
-      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
       box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+      position: relative;
     }
-    .drone-card:active{transform:scale(0.98); background: #fafafa;}
+    .drone-card:active{transform:scale(0.97); box-shadow: 0 0px 1px rgba(0,0,0,0.05);}
     .drone-card.multi-selected{
-      border-color:var(--pink) !important;
-      background:var(--pink-light);
+      border: 2px solid var(--pink) !important;
       transform:scale(1.02);
       box-shadow: 0 4px 12px rgba(224, 24, 90, 0.15);
     }
     
-    .drone-avatar{
-      width: 44px; height: 44px;
-      border-radius: 12px;
-      background: #fcfcfc;
-      border: 1px solid #f0f0f0;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; position: relative;
+    /* Card Header: Icon + Code + Dot */
+    .card-header {
+      display: flex;
+      align-items: center;
+      padding: 16px 16px 0;
+      position: relative;
     }
-    .drone-avatar .check-overlay{position:absolute;inset:0;border-radius:12px;background:var(--pink);display:none;align-items:center;justify-content:center}
-    .drone-card.multi-selected .check-overlay{display:flex}
-    .check-overlay svg{width:22px;height:22px;fill:white}
-    
-    .drone-info{flex:1;min-width:0; display:flex; flex-direction:column; justify-content:center; gap: 2px;}
-    .drone-name{font-size:16px;font-weight:700;color:#111;}
-    .drone-last-tested{font-size:12.5px;color:#777;line-height:1.4;}
-    .drone-last-tested .days-ago{font-size:11.5px;color:#999;font-weight:500;display:block;margin-top:1px;}
-
-    .status-pill{
-      font-size: 11.5px;
-      font-weight: 700;
-      padding: 5px 12px;
-      border-radius: 16px;
-      white-space: nowrap;
+    .card-icon-box {
+      width: 38px; height: 38px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      margin-right: 12px;
       flex-shrink: 0;
-      border: none;
+    }
+    .card-icon-box svg { width: 22px; height: 22px; fill: white; }
+    
+    .card-code {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    
+    .card-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      position: absolute;
+      top: 16px; right: 16px;
+    }
+
+    /* Multi-select overlay replaces the dot when selected */
+    .card-check-overlay {
+      position:absolute; top: 12px; right: 12px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--pink); display: none; align-items: center; justify-content: center;
+    }
+    .drone-card.multi-selected .card-check-overlay { display: flex; }
+    .drone-card.multi-selected .card-dot { display: none; }
+    .card-check-overlay svg { width: 14px; height: 14px; fill: white; }
+
+    /* Card Body: Drone ID + Dates */
+    .card-body {
+      padding: 14px 16px 16px;
+      flex: 1;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+    .card-date {
+      font-size: 12px;
+      color: #666;
+      font-weight: 500;
+    }
+
+    /* Card Footer: Subtle background + Icon + Days Ago */
+    .card-footer {
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #444;
+      border-top: 1px solid rgba(0,0,0,0.03);
+    }
+    .card-footer svg {
+      width: 14px; height: 14px; fill: currentColor; opacity: 0.7;
     }
 
     @keyframes cardUpdated{
@@ -194,14 +233,14 @@
     .drone-card.updated-card{animation:cardUpdated 5s ease}
 
     /* PAGINATION */
-    .pagination{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 0 80px}
-    .page-btn{padding:8px 14px;border:1px solid #e0e0e0;border-radius:var(--radius-sm);background:var(--surface);font-size:13px;font-weight:600;color:var(--text2);cursor:pointer}
+    .pagination{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 0 80px; grid-column: 1/-1;}
+    .page-btn{padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);font-size:13px;font-weight:600;color:var(--text2);cursor:pointer}
     .page-btn:disabled{opacity:.35;cursor:not-allowed}
     .page-info{font-size:13px;color:var(--text2);min-width:80px;text-align:center}
 
     /* HISTORY */
     #history-content{display:block}
-    .history-item{background:var(--surface);border-radius:var(--radius);border:1px solid #eaeaea;padding:11px 14px;display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+    .history-item{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:11px 14px;display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
     .history-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
     .history-dot.Qualified{background:var(--qual-dark)}
     .history-dot.Unqualified{background:var(--fail-dark)}
@@ -219,16 +258,16 @@
     .sheet-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.4)}
     .sheet-body{position:absolute;bottom:0;left:0;right:0;background:var(--surface);border-radius:20px 20px 0 0;padding:0 0 env(safe-area-inset-bottom,16px);max-height:90vh;overflow-y:auto;animation:slideUp .25s ease;max-width:480px;margin:0 auto; transition: border-top 0.2s ease;}
     @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-    .sheet-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:10px auto 0}
-    .sheet-header{padding:14px 16px 12px;border-bottom:1px solid #eaeaea}
+    .sheet-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 0}
+    .sheet-header{padding:14px 16px 12px;border-bottom:1px solid var(--border)}
     .sheet-drone-name{font-size:17px;font-weight:700;color:var(--text)}
     .sheet-current-status{font-size:12px;color:var(--text3);margin-top:3px}
-    .sheet-section{padding:14px 16px;border-bottom:1px solid #eaeaea}
+    .sheet-section{padding:14px 16px;border-bottom:1px solid var(--border)}
     .sheet-section-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
     .status-options{display:grid;gap:8px}
     .status-options.cols-2{grid-template-columns:repeat(2,1fr)}
     .status-options.cols-3{grid-template-columns:repeat(3,1fr)}
-    .status-option{padding:10px 6px;border:1.5px solid #e0e0e0;border-radius:var(--radius-sm);text-align:center;cursor:pointer;transition:all .15s}
+    .status-option{padding:10px 6px;border:1.5px solid var(--border);border-radius:var(--radius-sm);text-align:center;cursor:pointer;transition:all .15s}
     .status-option .opt-label{font-size:13px;font-weight:600;color:var(--text2)}
     .status-option .opt-dot{width:10px;height:10px;border-radius:50%;margin:0 auto 5px}
     
@@ -241,17 +280,17 @@
 
     /* NESTED FAULT CODE & REASONS UI */
     .reason-grid{display:flex;flex-direction:column;gap:6px}
-    .multi-option{padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;color:var(--text2);display:flex;align-items:center;gap:10px;transition:all .1s}
+    .multi-option{padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:13px;color:var(--text2);display:flex;align-items:center;gap:10px;transition:all .1s}
     .multi-option.selected{border-color:var(--fail-dark);background:var(--fail-light);color:var(--fail-dark);font-weight:600}
     .check-box{width:18px;height:18px;border-radius:4px;border:1.5px solid #ccc;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .1s}
     .multi-option.selected .check-box{background:var(--fail-dark);border-color:var(--fail-dark)}
     .multi-option.selected .check-box::after{content:'✓';color:white;font-size:12px;font-weight:900}
     .multi-option span{pointer-events:none; flex:1;}
     
-    .notes-input{width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:var(--radius-sm);font-size:14px;color:var(--text);background:var(--surface2);outline:none;resize:none;font-family:inherit}
+    .notes-input{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;color:var(--text);background:var(--surface2);outline:none;resize:none;font-family:inherit}
     .notes-input:focus{border-color:var(--pink)}
     .sheet-footer{padding:12px 16px;display:flex;gap:10px}
-    .cancel-btn{flex:1;padding:13px;background:var(--surface2);border:1px solid #e0e0e0;border-radius:var(--radius);font-size:14px;font-weight:600;color:var(--text2);cursor:pointer}
+    .cancel-btn{flex:1;padding:13px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);font-size:14px;font-weight:600;color:var(--text2);cursor:pointer}
     .submit-btn{flex:2;padding:13px;background:var(--pink);color:white;border:none;border-radius:var(--radius);font-size:14px;font-weight:700;cursor:pointer; transition:opacity .2s;}
     .submit-btn:disabled{opacity:.4;cursor:not-allowed}
     .submit-btn:not(:disabled):active{background:var(--pink-dark)}
@@ -266,6 +305,19 @@
     .select-hint{font-size:11px;color:var(--text3);text-align:center;padding:4px 0 6px;display:none}
     .select-hint.visible{display:block}
 
+    /* WIP / INFO POPUP */
+    #info-popup{position:fixed;inset:0;z-index:80;display:none;align-items:flex-end;justify-content:center}
+    #info-popup.open{display:flex}
+    .info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.3)}
+    .info-box{position:relative;background:var(--surface);border-radius:20px 20px 0 0;padding:24px 20px 36px;width:100%;max-width:480px;text-align:center;animation:slideUp .2s ease; transition: border-top 0.2s ease;}
+    .info-icon{font-size:40px;margin-bottom:12px}
+    .info-title{font-size:17px;font-weight:700;margin-bottom:6px}
+    .info-sub{font-size:14px;color:var(--text2);line-height:1.5;margin-bottom:20px}
+    .info-actions{display:flex;gap:10px;justify-content:center;margin-top:10px}
+    .info-close{flex:1;padding:12px 14px;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;border:1.5px solid}
+    .info-retest{flex:1;display:none;padding:12px 14px;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;border:1.5px solid var(--rft-dark);background:var(--rft-dark);color:white}
+    .info-retest:active{opacity:0.8}
+
     #toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1a1a;color:white;padding:10px 18px;border-radius:24px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;z-index:200}
     #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
     #toast.success{background:var(--qual-dark)}
@@ -273,7 +325,7 @@
 
     .spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--pink);border-radius:50%;animation:spin .7s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .empty-msg{text-align:center;padding:40px 16px;color:var(--text3);font-size:14px;line-height:1.6}
+    .empty-msg{text-align:center;padding:40px 16px;color:var(--text3);font-size:14px;line-height:1.6; grid-column:1/-1;}
 
     /* DESKTOP LAYOUT (>= 1024px) */
     @media (min-width: 1024px) {
@@ -311,45 +363,6 @@
       .select-hint{display:none !important}
       .list-meta{margin-bottom:14px;font-size:13px}
 
-      /* Desktop Stacked Grid */
-      #drone-list-container{display:grid;grid-template-columns:repeat(5, 1fr);gap:12px;align-content:start;}
-      
-      .drone-card {
-        margin-bottom:0;
-        display:grid;
-        grid-template-columns: 1fr auto;
-        grid-template-rows: auto auto;
-        row-gap: 12px;
-        column-gap: 10px;
-        align-items: start;
-        padding: 14px 16px;
-      }
-      .drone-card .drone-avatar { 
-        grid-column: 1; 
-        grid-row: 1; 
-        width: 40px; 
-        height: 40px; 
-      }
-      .drone-card .status-pill { 
-        grid-column: 2; 
-        grid-row: 1; 
-        justify-self: end; 
-        margin-top: 0;
-      }
-      .drone-card .drone-info { 
-        grid-column: 1 / -1; 
-        grid-row: 2; 
-        width: 100%; 
-        display: block; 
-      }
-      .drone-name{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      .drone-card .drone-last-tested{margin-top:4px;font-size:12.5px;line-height:1.4}
-      .drone-card .drone-last-tested .days-ago { display: block; margin-top: 1px; }
-      .drone-card:hover{box-shadow:0 2px 10px rgba(0,0,0,.08);border-color:rgba(0,0,0,.18)}
-
-      .pagination{grid-column:1 / -1;padding:20px 0 40px;}
-      .empty-msg{grid-column:1 / -1}
-
       #history-content{display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;align-content:start;}
       #history-content > div:first-child{grid-column:1 / -1;margin-bottom:0;}
       .history-item{margin-bottom:0}
@@ -365,20 +378,15 @@
     }
 
     @media (min-width: 1440px) {
-      #drone-list-container{grid-template-columns:repeat(6, 1fr)}
-      #history-content{grid-template-columns:repeat(4, 1fr)}
       .fleet-header,.content,#history-panel,header{padding-left:48px;padding-right:48px}
     }
     @media (min-width: 1800px) {
-      #drone-list-container{grid-template-columns:repeat(8, 1fr)}
-      #history-content{grid-template-columns:repeat(5, 1fr)}
       .fleet-header,.content,#history-panel,header{padding-left:64px;padding-right:64px}
     }
   </style>
 </head>
 <body>
 
-<!-- SETUP SCREEN -->
 <div id="setup-screen" class="hidden">
   <div id="setup-card">
     <div class="setup-logo">
@@ -403,7 +411,6 @@
   </div>
 </div>
 
-<!-- MAIN APP -->
 <div id="app">
   <header>
     <div class="header-left">
@@ -429,7 +436,6 @@
 
   <div id="fleet-panel" class="hidden">
     <div class="fleet-header">
-      <!-- 7 METRIC CARDS TRACKING STAGES (Acts as Filters) -->
       <div class="summary-scroll-wrap">
         <div class="summary-scroll">
           <div class="summary">
@@ -476,6 +482,7 @@
       </div>
       
     </div>
+    
     <div class="content" id="drone-list-container"></div>
   </div>
 
@@ -484,7 +491,6 @@
   </div>
 </div>
 
-<!-- INFO POPUP -->
 <div id="info-popup">
   <div class="info-backdrop" onclick="closeInfoPopup()"></div>
   <div class="info-box" id="info-box">
@@ -498,7 +504,6 @@
   </div>
 </div>
 
-<!-- UPDATE BOTTOM SHEET -->
 <div id="update-sheet">
   <div class="sheet-backdrop" onclick="closeSheet()"></div>
   <div class="sheet-body" id="sheet-body">
@@ -513,7 +518,6 @@
       <div class="status-options" id="status-options-grid"></div>
     </div>
     
-    <!-- DYNAMIC MULTI-SELECT REASON SECTION -->
     <div class="sheet-section" id="unqualified-details" style="display:none">
       <div class="sheet-section-title">1. Select Fault Code(s)</div>
       <div class="reason-grid" id="fault-code-grid"></div>
@@ -535,7 +539,6 @@
   </div>
 </div>
 
-<!-- BATCH BAR (Dynamic Actions) -->
 <div id="batch-bar">
   <div class="batch-label" id="batch-label">0 selected</div>
   <button class="batch-action-btn" id="batch-action-btn" onclick="executeBatchAction()">Action</button>
@@ -576,6 +579,26 @@ const STATUS_DISPLAY = {
   'Qualified':          'Qualified ✔',
   'Unqualified':        'Unqualified',
   'Work In Progress':   'Work In Progress'
+};
+
+// Short Codes mapped to Image Provided
+const STATUS_CODES = {
+  'Unconfigured':       'UCG',
+  'Ready for Testing':  'RFT',
+  'Ready for Animation':'RFA',
+  'Qualified':          'Q',
+  'Unqualified':        'UQ',
+  'Work In Progress':   'WIP'
+};
+
+// Icons Mapped to Image Provided
+const STATUS_ICONS = {
+  'Ready for Animation':`<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`,
+  'Ready for Testing':  `<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm0-7c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/></svg>`,
+  'Qualified':          `<svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>`,
+  'Work In Progress':   `<svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>`,
+  'Unconfigured':       `<svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.02 7.02 0 00-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>`,
+  'Unqualified':        `<svg viewBox="0 0 24 24"><path d="M15.73 3H8.27L3 8.27v7.46L8.27 21h7.46L21 15.73V8.27L15.73 3zM12 17.3c-.72 0-1.3-.58-1.3-1.3 0-.72.58-1.3 1.3-1.3.72 0 1.3.58 1.3 1.3 0 .72-.58 1.3-1.3 1.3zm1-4.3h-2V7h2v6z"/></svg>`
 };
 
 const STATUS_VARS = {
@@ -630,7 +653,7 @@ let currentFilter = null;
 // Select State
 let selectMode = false, selectedIds = new Set(), selectStatusType = null, longPressTimer = null;
 
-// Helper function to calculate exact days ago
+// Helpers for dates
 function getDaysAgo(dateString) {
   if (!dateString) return 0;
   const d = new Date(dateString);
@@ -638,15 +661,16 @@ function getDaysAgo(dateString) {
   d.setHours(0,0,0,0); today.setHours(0,0,0,0);
   return Math.floor((today - d) / 86400000);
 }
-
-function getLastTestLabel(lastTested) {
-  if (!lastTested) return "";
-  const d = new Date(lastTested);
-  const formattedDate = String(d.getDate()).padStart(2,'0')+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+d.getFullYear();
-  const diffDays = getDaysAgo(lastTested);
-  
-  if (diffDays <= 0) return `Last Status: Today`;
-  return `Last Status: ${formattedDate}<br><span class="days-ago">(${diffDays} Day${diffDays>1?'s':''} Ago)</span>`;
+function getFormattedDateOnly(dateString) {
+  if (!dateString) return "—";
+  const d = new Date(dateString);
+  return String(d.getDate()).padStart(2,'0')+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+d.getFullYear();
+}
+function getRelativeDaysStr(dateString) {
+  if (!dateString) return "—";
+  const diffDays = getDaysAgo(dateString);
+  if (diffDays <= 0) return "Today";
+  return `${diffDays} Day${diffDays>1?'s':''} Ago`;
 }
 
 window.onload = () => {
@@ -829,8 +853,6 @@ function applyFilterAndRender() {
     html = '<div class="empty-msg">No drones match your filters</div>';
   } else {
     pageItems.forEach(d => {
-      const displayStatus = STATUS_DISPLAY[d.status] || d.status || 'Unknown';
-      const pillClass = `pill-${(d.status||'Unknown').replace(/\s+/g,'-')}`;
       const key = encodeURIComponent(d.id||d.name);
       const isSelected = selectedIds.has(d.id||d.name);
       const isUpdated = recentlyUpdatedDrone===(d.id||d.name);
@@ -838,26 +860,43 @@ function applyFilterAndRender() {
       const varKey = STATUS_VARS[d.status] || 'unconf';
       const darkCol = `var(--${varKey}-dark)`;
       const lightCol = `var(--${varKey}-light)`;
+      
+      const shortCode = STATUS_CODES[d.status] || 'UNK';
+      const iconSvg = STATUS_ICONS[d.status] || '';
+
+      const dateObj = d.updated || d.lastTested;
+      const dateStr = getFormattedDateOnly(dateObj); 
+      const relativeStr = getRelativeDaysStr(dateObj); 
+      
+      let datePrefix = "Last Status:";
+      if (d.status === "Ready for Testing" || d.status === "Ready for Animation") datePrefix = "Last Tested:";
+      else if (d.status === "Unconfigured") datePrefix = "Last Added:";
 
       html += `<div class="drone-card${isSelected?' multi-selected':''}${isUpdated?' updated-card':''}"
-        style="border-top: 4px solid ${darkCol}; ${isUpdated?`--anim-color:${darkCol};`:''}" 
+        style="${isUpdated?`--anim-color:${darkCol};`:''}" 
         data-key="${key}" data-id="${d.id||d.name}"
         onclick="handleCardTap('${key}')" onmousedown="startLongPress('${key}')" ontouchstart="startLongPress('${key}')"
         onmouseup="cancelLongPress()" ontouchend="cancelLongPress()" onmouseleave="cancelLongPress()">
         
-        <div class="drone-avatar">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="${darkCol}">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5zm0-5.5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/>
-          </svg>
-          <div class="check-overlay"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></div>
+        <div class="card-header">
+          <div class="card-icon-box" style="background-color: ${darkCol};">
+            ${iconSvg}
+          </div>
+          <div class="card-code" style="color: ${darkCol};">${shortCode}</div>
+          <div class="card-dot" style="background-color: ${darkCol};"></div>
+          
+          <div class="card-check-overlay"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></div>
         </div>
         
-        <div class="drone-info">
-          <div class="drone-name">${d.name}</div>
-          ${(d.updated||d.lastTested)?`<div class="drone-last-tested">${getLastTestLabel(d.updated||d.lastTested)}</div>`:''}
+        <div class="card-body">
+          <div class="card-title">${d.name}</div>
+          <div class="card-date">${datePrefix} ${dateStr}</div>
         </div>
         
-        <span class="status-pill" style="background-color: ${lightCol}; color: ${darkCol};">${displayStatus}</span>
+        <div class="card-footer" style="background-color: ${lightCol};">
+          <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+          ${relativeStr}
+        </div>
         
       </div>`;
     });
