@@ -56,25 +56,14 @@
     #main{flex:1;overflow-y:auto;display:none;padding:14px 14px 0}
     #main.visible{display:block}
 
-    /* SUMMARY CARDS */
-    .summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-    .sum-card{background:var(--surface);border-radius:var(--radius);padding:14px 16px;border:1px solid var(--border);position:relative;overflow:hidden}
+    /* SUMMARY CARDS (Isolated to Unconfigured) */
+    .summary{display:flex;gap:10px;margin-bottom:14px}
+    .sum-card{flex:1;background:var(--surface);border-radius:var(--radius);padding:14px 16px;border:1px solid var(--border);position:relative;overflow:hidden}
     .sum-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
     .sum-unconf::before{background:var(--amber)}
-    .sum-conf::before{background:var(--green)}
     .sum-num{font-size:28px;font-weight:800;line-height:1;margin-bottom:4px}
     .sum-unconf .sum-num{color:var(--amber)}
-    .sum-conf .sum-num{color:var(--green)}
     .sum-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
-
-    /* BATCH INFO */
-    .batch-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:14px 16px;margin-bottom:14px}
-    .batch-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-    .batch-title{font-size:13px;font-weight:700;color:var(--text)}
-    .batch-port{font-size:12px;color:var(--text2);background:var(--surface2);padding:2px 8px;border-radius:20px;border:1px solid var(--border)}
-    .progress-wrap{background:var(--surface2);border-radius:4px;height:6px;overflow:hidden;margin-bottom:6px}
-    .progress-bar{height:100%;background:var(--green);border-radius:4px;transition:width .4s}
-    .progress-label{font-size:11px;color:var(--text3)}
 
     /* CREATE BATCH BTN */
     .create-btn{width:100%;padding:13px;background:var(--blue);color:white;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px}
@@ -84,7 +73,9 @@
     /* TOOLBAR */
     .toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
     .select-all-btn{font-size:13px;font-weight:600;color:var(--blue);background:none;border:none;cursor:pointer}
-    .list-meta{font-size:12px;color:var(--text2);font-weight:500}
+    .add-drone-btn{font-size:12px;font-weight:600;color:var(--blue);background:var(--blue-light);border:1px solid var(--blue-border);border-radius:var(--radius-sm);padding:6px 12px;cursor:pointer;display:flex;align-items:center;gap:4px}
+    .add-drone-btn svg{width:12px;height:12px;fill:var(--blue)}
+    .list-meta{font-size:12px;color:var(--text2);font-weight:500; margin-bottom: 8px; display:block;}
 
     /* DRONE ROWS */
     #drone-list{display:block}
@@ -99,7 +90,6 @@
     .drone-sub{font-size:12px;color:var(--text2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .status-pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
     .pill-Unconfigured{background:var(--amber-bg);color:#7a6000;border:1px solid var(--amber-border)}
-    .pill-Configured{background:var(--green-bg);color:#2a6611;border:1px solid var(--green-border)}
 
     /* PAGINATION */
     .pagination{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 0 16px;grid-column:1/-1}
@@ -112,12 +102,11 @@
     #batch-bar.visible{display:flex}
     .batch-count{font-size:14px;font-weight:600;color:rgba(255,255,255,.8);flex:1}
     .batch-conf-btn{padding:10px 14px;background:var(--green);color:white;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
-    .batch-unconf-btn{padding:10px 14px;background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.3);border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
     .batch-clear-btn{padding:10px 12px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);border:none;border-radius:var(--radius-sm);font-size:13px;cursor:pointer}
 
-    /* CREATE MODAL */
-    #modal{position:fixed;inset:0;z-index:60;display:none;align-items:flex-end;justify-content:center}
-    #modal.open{display:flex}
+    /* MODALS */
+    .modal{position:fixed;inset:0;z-index:60;display:none;align-items:flex-end;justify-content:center}
+    .modal.open{display:flex}
     .modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45)}
     .modal-box{position:relative;background:var(--surface);border-radius:20px 20px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom,0px));width:100%;max-width:480px;animation:slideUp .22s ease}
     @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
@@ -145,83 +134,34 @@
 
     /* =========================================================
        DESKTOP / LAPTOP VIEW (>=1024px)
-       Layout only — no business logic changes.
        ========================================================= */
     @media (min-width:1024px){
       html,body{height:auto;min-height:100%}
-
-      #app{
-        max-width:1280px;
-        height:auto;
-        min-height:100vh;
-      }
-
-      header{
-        padding:18px 32px;
-        position:sticky; top:0; z-index:30;
-      }
+      #app{max-width:1280px;height:auto;min-height:100vh;}
+      header{padding:18px 32px;position:sticky; top:0; z-index:30;}
       .header-title{font-size:19px}
-
       #loading{min-height:60vh}
+      #main{overflow-y:visible;padding:20px 32px 0;}
 
-      /* whole page scrolls naturally instead of an inner scroll box */
-      #main{
-        overflow-y:visible;
-        padding:20px 32px 0;
-      }
-
-      /* Top summary cards stretch to fill the full width */
-      .summary{
-        grid-template-columns:repeat(2,1fr);
-        gap:16px;
-        margin-bottom:18px;
-      }
+      .summary{grid-template-columns:repeat(1,1fr);margin-bottom:18px;}
       .sum-card{padding:20px 24px}
       .sum-num{font-size:36px}
       .sum-label{font-size:12px}
 
-      .batch-card{padding:18px 22px;margin-bottom:18px}
-      .batch-title{font-size:14px}
-
-      .create-btn{
-        max-width:340px;
-        margin-left:auto;margin-right:auto;
-        padding:14px;
-        font-size:14px;
-      }
-
+      .create-btn{max-width:340px;margin-left:auto;margin-right:auto;padding:14px;font-size:14px;}
       .toolbar{margin-bottom:12px}
-      .list-meta{font-size:13px}
+      .list-meta{font-size:13px; margin-bottom:14px;}
       .select-all-btn{font-size:14px}
 
-      /* Drone cards: 5 columns grid, page is fully scrollable
-         (no fixed-height inner scroll container) */
-      #drone-list{
-        display:grid;
-        grid-template-columns:repeat(5,1fr);
-        gap:10px;
-        align-items:start;
-      }
-      .drone-row{
-        margin-bottom:0;
-        flex-direction:column;
-        align-items:flex-start;
-        gap:8px;
-        padding:14px 16px;
-      }
-      .drone-row .drone-checkbox{
-        position:absolute;
-        top:12px;right:12px;
-      }
-      .drone-row{position:relative;padding-right:40px}
+      #drone-list{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:start;}
+      .drone-row{margin-bottom:0;flex-direction:column;align-items:flex-start;gap:8px;padding:14px 16px;position:relative;padding-right:40px}
+      .drone-row .drone-checkbox{position:absolute;top:12px;right:12px;}
       .drone-info{width:100%}
       .status-pill{align-self:flex-start}
 
       .pagination{padding:18px 0 28px}
-
-      /* Batch bar + modal stay centered to match the wider container */
       #batch-bar{max-width:1280px;padding:14px 32px}
-      .modal-box{max-width:480px}
+      .modal-box{max-width:480px; border-radius:16px;}
     }
 
     @media (min-width:1440px){
@@ -233,7 +173,6 @@
 </head>
 <body>
 
-<!-- SETUP -->
 <div id="setup">
   <div id="setup-card">
     <div class="setup-logo">
@@ -248,7 +187,6 @@
   </div>
 </div>
 
-<!-- APP -->
 <div id="app">
   <header>
     <div class="header-left">
@@ -268,53 +206,40 @@
   <div id="loading"><div class="spinner"></div><div class="loading-text">Loading drones...</div></div>
 
   <div id="main">
-    <!-- Summary -->
-    <div class="summary">
-      <div class="sum-card sum-unconf">
-        <div class="sum-num" id="cnt-unconf">0</div>
-        <div class="sum-label">Unconfigured</div>
-      </div>
-      <div class="sum-card sum-conf">
-        <div class="sum-num" id="cnt-conf">0</div>
-        <div class="sum-label">Configured</div>
-      </div>
-    </div>
-
-    <!-- Batch info -->
-    <div class="batch-card" id="batch-card" style="display:none">
-      <div class="batch-row">
-        <div class="batch-title" id="batch-range-label">—</div>
-        <div class="batch-port" id="batch-port-label">—</div>
-      </div>
-      <div class="progress-wrap"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
-      <div class="progress-label" id="progress-label">0 / 0 configured</div>
-    </div>
-
-    <!-- Create next batch button -->
-    <button class="create-btn" id="create-btn" onclick="openModal()" disabled>
+    
+    <button class="create-btn" id="create-btn" onclick="openModal()">
       <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
       Configure Next 200 Drones
     </button>
 
-    <!-- Drone list -->
+    <div class="summary">
+      <div class="sum-card sum-unconf">
+        <div class="sum-num" id="cnt-unconf">0</div>
+        <div class="sum-label">Pending Configurations</div>
+      </div>
+    </div>
+
     <div class="toolbar">
       <button class="select-all-btn" id="select-all-btn" onclick="toggleSelectAll()">Select All</button>
-      <div class="list-meta" id="list-meta"></div>
+      
+      <button class="add-drone-btn" onclick="openAddModal()">
+        <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        Add / Reset Drone
+      </button>
     </div>
+    
+    <div class="list-meta" id="list-meta"></div>
     <div id="drone-list"></div>
   </div>
 </div>
 
-<!-- BATCH BAR -->
 <div id="batch-bar">
   <div class="batch-count" id="batch-count-label">0 selected</div>
-  <button class="batch-conf-btn" onclick="batchAction('Configured')">✓ Configure</button>
-  <button class="batch-unconf-btn" onclick="batchAction('Unconfigured')">↩ Unconfigure</button>
+  <button class="batch-conf-btn" onclick="batchAction('Ready for Testing')">✓ Configure</button>
   <button class="batch-clear-btn" onclick="clearSelection()">✕</button>
 </div>
 
-<!-- CREATE MODAL -->
-<div id="modal">
+<div id="modal" class="modal">
   <div class="modal-backdrop" onclick="closeModal()"></div>
   <div class="modal-box">
     <div class="modal-handle"></div>
@@ -331,17 +256,29 @@
   </div>
 </div>
 
+<div id="add-modal" class="modal">
+  <div class="modal-backdrop" onclick="closeAddModal()"></div>
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Reset Drone</div>
+    <div class="modal-sub">Enter an exact Drone ID or Name to forcefully pull it back to Unconfigured state.</div>
+    <div class="modal-label">Drone ID / Name</div>
+    <input class="modal-input" id="reset-input" type="text" placeholder="e.g. D-0045" maxlength="30"
+      oninput="document.getElementById('add-confirm-btn').disabled = !this.value.trim()"/>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeAddModal()">Cancel</button>
+      <button class="modal-confirm" id="add-confirm-btn" onclick="resetDrone()" disabled>Mark Unconfigured</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
-// PAGE_SIZE scales up on wider screens so the 5-column grid fills ~20 rows
-// (100 drones/page) on desktop, while staying 50/page on mobile. Pure
-// presentation tweak — does not touch any business logic below.
 const PAGE_SIZE  = window.innerWidth >= 1024 ? 100 : 50;
 let config       = JSON.parse(localStorage.getItem('configAppConfig') || 'null');
 let allDrones    = [];
 let nextBatch    = {};
-let canCreate    = false;
 let selectedIds  = new Set();
 let currentPage  = 1;
 
@@ -391,13 +328,15 @@ async function loadData() {
   showLoading(true);
   try {
     const data  = await api({ action: 'getConfigDrones' });
-    allDrones   = data.drones  || [];
+    
+    // Strictly isolate view to Unconfigured drones only
+    allDrones   = (data.drones || []).filter(d => d.status === 'Unconfigured');
     nextBatch   = data.nextBatch || {};
-    canCreate   = data.canCreate || false;
+    
     selectedIds.clear();
     currentPage = 1;
-    renderSummary(data.summary || {});
-    renderBatchCard(data.summary || {});
+    
+    renderSummary();
     renderList();
     showLoading(false);
   } catch(e) {
@@ -412,52 +351,8 @@ function showLoading(show) {
 }
 
 // ── RENDER SUMMARY ──
-function renderSummary(s) {
-  document.getElementById('cnt-unconf').textContent = s.unconfigured || 0;
-  document.getElementById('cnt-conf').textContent   = s.configured   || 0;
-}
-
-// ── RENDER BATCH CARD ──
-function renderBatchCard(s) {
-  const total = (s.unconfigured || 0) + (s.configured || 0);
-  const card  = document.getElementById('batch-card');
-
-  if (total === 0) {
-    card.style.display = 'none';
-  } else {
-    card.style.display = 'block';
-
-    const pct = total > 0
-      ? Math.round((s.configured / total) * 100)
-      : 0;
-
-    // Find port from first configured drone
-    const portDrone = allDrones.find(d => d.port_id);
-    const port = portDrone ? portDrone.port_id : '—';
-
-    // Sort drones by Drone Name (D - 0001, D - 0002...)
-    const sortedDrones = [...allDrones].sort((a, b) =>
-      a.name.localeCompare(b.name, undefined, { numeric: true })
-    );
-
-    // Display first and last Drone Name
-    const rangeLabel = sortedDrones.length
-      ? `${sortedDrones[0].name} – ${sortedDrones[sortedDrones.length - 1].name}`
-      : '—';
-
-    document.getElementById('batch-range-label').textContent = rangeLabel;
-    document.getElementById('batch-port-label').textContent  = port;
-    document.getElementById('progress-bar').style.width      = pct + '%';
-    document.getElementById('progress-label').textContent    =
-      `${s.configured || 0} / ${total} configured`;
-  }
-
-  // Create button — enabled only when canCreate
-  const btn = document.getElementById('create-btn');
-  btn.disabled = !canCreate;
-  btn.title = canCreate
-    ? ''
-    : 'Configure all current drones before creating a new batch';
+function renderSummary() {
+  document.getElementById('cnt-unconf').textContent = allDrones.length;
 }
 
 // ── RENDER LIST ──
@@ -479,8 +374,8 @@ function renderList() {
 
   document.getElementById('list-meta').textContent =
     total === 0 ? '' :
-    total <= PAGE_SIZE ? `${total} drone${total !== 1 ? 's' : ''}` :
-    `${start + 1}–${end} of ${total}`;
+    total <= PAGE_SIZE ? `${total} unconfigured drone${total !== 1 ? 's' : ''}` :
+    `${start + 1}–${end} of ${total} unconfigured`;
 
   const allSel =
     sortedDrones.length > 0 &&
@@ -492,77 +387,39 @@ function renderList() {
   let html = '';
 
   if (!pageItems.length) {
-
-    html =
-      '<div class="empty-msg">No drones to configure.<br>Create a new batch to get started.</div>';
-
+    html = '<div class="empty-msg">No unconfigured drones found.<br>Create a new batch or reset a drone to get started.</div>';
   } else {
-
     pageItems.forEach(d => {
-
       const sel = selectedIds.has(d.id);
-
       html += `
         <div class="drone-row ${sel ? 'selected' : ''}" onclick="toggleSelect('${d.id}')">
-
           <div class="drone-checkbox"></div>
-
           <div class="drone-info">
-
-            <div class="drone-id">
-              ${d.name}
-            </div>
-
-            <div class="drone-sub">
-              ${d.configured_at || ''}
-            </div>
-
+            <div class="drone-id">${d.name}</div>
           </div>
-
-          <span class="status-pill pill-${d.status}">
-            ${d.status}
-          </span>
-
+          <span class="status-pill pill-Unconfigured">Unconfigured</span>
         </div>`;
     });
   }
 
   if (totalPages > 1) {
-
     html += `
       <div class="pagination">
-        <button class="page-btn"
-                onclick="goPage(${currentPage - 1})"
-                ${currentPage === 1 ? 'disabled' : ''}>
-          ← Prev
-        </button>
-
-        <span class="page-info">
-          Page ${currentPage} / ${totalPages}
-        </span>
-
-        <button class="page-btn"
-                onclick="goPage(${currentPage + 1})"
-                ${currentPage === totalPages ? 'disabled' : ''}>
-          Next →
-        </button>
+        <button class="page-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>← Prev</button>
+        <span class="page-info">Page ${currentPage} / ${totalPages}</span>
+        <button class="page-btn" onclick="goPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next →</button>
       </div>`;
-
   } else {
-
     html += '<div class="footer-space"></div>';
-
   }
 
   document.getElementById('drone-list').innerHTML = html;
-
   updateBatchBar();
 }
 
 function goPage(p) {
   currentPage = p;
   renderList();
-  // Scroll the whole page to the top of the list on page change
   document.getElementById('main').scrollIntoView({ block: 'start', behavior: 'smooth' });
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -592,43 +449,57 @@ function updateBatchBar() {
   }
 }
 
-// ── BATCH ACTION ──
+// ── BATCH ACTION (Handoff to Operator Screen) ──
 async function batchAction(status) {
   const ids = [...selectedIds];
   if (!ids.length) return;
 
-  // Optimistic UI
-  ids.forEach(id => {
-    const d = allDrones.find(x => x.id === id);
-    if (d) {
-      d.status = status;
-      d.configured_at = status === 'Configured' ? 'Just now' : '';
-    }
-  });
-
-  const conf   = allDrones.filter(d => d.status === 'Configured').length;
-  const unconf = allDrones.filter(d => d.status === 'Unconfigured').length;
-  canCreate = unconf === 0 && allDrones.length > 0;
-
+  // Optimistically remove them from this isolated view immediately
+  allDrones = allDrones.filter(d => !ids.includes(d.id));
   selectedIds.clear();
-  renderSummary({ configured: conf, unconfigured: unconf });
-  renderBatchCard({ configured: conf, unconfigured: unconf });
+  
+  renderSummary({ unconfigured: allDrones.length });
   renderList();
-  showToast(`✓ ${ids.length} drone${ids.length!==1?'s':''} marked ${status}`, 'success');
+  showToast(`✓ ${ids.length} drone${ids.length!==1?'s':''} configured successfully`, 'success');
 
   try {
-    await api({ action: 'batchConfigUpdate', droneIds: JSON.stringify(ids), status });
+    // We send Ready for Testing, not 'Configured', so it feeds right into the Operator app
+    await api({ action: 'batchConfigUpdate', droneIds: JSON.stringify(ids), status: status });
   } catch(e) {
     showToast('Sync failed: ' + e.message, 'error');
-    loadData(); // reload to get actual state
+    loadData(); // reload to fix sync issue
+  }
+}
+
+// ── ADD / RESET DRONE MODAL ──
+function openAddModal() {
+  document.getElementById('reset-input').value = '';
+  document.getElementById('add-confirm-btn').disabled = true;
+  document.getElementById('add-modal').classList.add('open');
+  setTimeout(() => document.getElementById('reset-input').focus(), 300);
+}
+function closeAddModal() { document.getElementById('add-modal').classList.remove('open'); }
+
+async function resetDrone() {
+  const droneId = document.getElementById('reset-input').value.trim();
+  if (!droneId) return;
+
+  const btn = document.getElementById('add-confirm-btn');
+  btn.textContent = 'Updating...'; btn.disabled = true;
+
+  try {
+    await api({ action: 'updateDrone', droneId: droneId, status: 'Unconfigured', reason: 'Manual Reset', notes: '' });
+    closeAddModal();
+    showToast(`✓ ${droneId} marked as Unconfigured`, 'success');
+    await loadData();
+  } catch(e) {
+    showToast(e.message, 'error');
+    btn.textContent = 'Mark Unconfigured'; btn.disabled = false;
   }
 }
 
 // ── CREATE BATCH MODAL ──
 function openModal() {
-  if (!canCreate) {
-    showToast('Configure all current drones first', 'error'); return;
-  }
   document.getElementById('port-input').value = '';
   document.getElementById('modal-confirm-btn').disabled = true;
   document.getElementById('modal-range').textContent =
