@@ -14,16 +14,16 @@
       --pink:#e0185a; --pink-light:#fbeaf0; --pink-dark:#b0103e;
       --bg:#ffffff; 
       --surface:#fff; --surface2:#f8f8f8;
-      --border:#CBD5E1; /* Updated subtle border from design spec */
+      --border:#e0e0e0;
       --text:#1a1a1a; --text2:#666; --text3:#999;
       
-      /* Exact Hex Codes from Design Pattern */
-      --unconf-light: #F5F3FF;  --unconf-dark: #8B5CF6;
-      --rft-light: #EFF6FF;     --rft-dark: #3B82F6;
-      --rfa-light: #E8F9F0;     --rfa-dark: #22C55E;
-      --wip-light: #FFF7ED;     --wip-dark: #F59E0B;
-      --fail-light: #FEF2F2;    --fail-dark: #EF4444;
-      --qual-light: #F0FAF4;    --qual-dark: #16A34A;
+      /* Exact Hex Codes */
+      --unconf-light: #F4F1FD;  --unconf-dark: #7C3AED;
+      --rft-light: #F0F6FE;     --rft-dark: #2563EB;
+      --rfa-light: #EFFAF7;     --rfa-dark: #14B8A6;
+      --wip-light: #FEF7E8;     --wip-dark: #F59E0B;
+      --fail-light: #FEF0F1;    --fail-dark: #DC2626;
+      --qual-light: #F1F8F2;    --qual-dark: #16A34A;
 
       --radius:12px; --radius-sm:8px;
     }
@@ -85,7 +85,6 @@
     .stat-card{background:var(--surface);border-radius:var(--radius);padding:12px 10px;text-align:center;border:1px solid var(--border);min-width:calc((100vw - 42px) / 3.1);flex-shrink:0;cursor:pointer;transition:all 0.2s ease;}
     .stat-total { cursor: default; } 
     
-    /* Active & Dimmed states for filters */
     .stat-card.dimmed { opacity: 0.4; transform: scale(0.96); }
     .stat-card.active { transform: scale(1.06); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 
@@ -122,107 +121,100 @@
     .clear-filter-btn.visible{display:block;}
 
     /* -------------------------------------------------------------
-       NEW VERTICAL DRONE CARD PATTERN 
+       NEW SKETCHED DRONE CARD PATTERN (Vertical Box)
        ------------------------------------------------------------- */
     #drone-list-container {
       display: grid;
-      /* Auto-adapts: 2 cols on mobile, 4-6 on desktop */
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 14px;
+      grid-template-columns: 1fr 1fr; /* 2 columns on Mobile */
+      gap: 12px;
       padding-bottom: 20px;
     }
 
     .drone-card {
-      background: #ffffff;
+      background: var(--surface);
       border-radius: var(--radius);
       border: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      position: relative;
       cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
       transition: transform 0.15s ease, box-shadow 0.15s ease;
       box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-      position: relative;
+      overflow: hidden;
     }
     .drone-card:active{transform:scale(0.97); box-shadow: 0 0px 1px rgba(0,0,0,0.05);}
     .drone-card.multi-selected{
       border: 2px solid var(--pink) !important;
+      background: var(--pink-light);
       transform:scale(1.02);
       box-shadow: 0 4px 12px rgba(224, 24, 90, 0.15);
     }
     
-    /* Card Header: Icon + Code + Dot */
-    .card-header {
+    /* Top Row: Icon & Status Code */
+    .dc-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px 4px 12px;
+    }
+    .dc-icon {
       display: flex;
       align-items: center;
-      padding: 16px 16px 0;
-      position: relative;
+      justify-content: center;
     }
-    .card-icon-box {
-      width: 38px; height: 38px;
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      margin-right: 12px;
-      flex-shrink: 0;
-    }
-    .card-icon-box svg { width: 22px; height: 22px; fill: white; }
-    
-    .card-code {
-      font-size: 22px;
+    .dc-icon svg { width: 16px; height: 16px; }
+    .dc-status {
+      font-size: 13px;
       font-weight: 800;
-      letter-spacing: -0.02em;
-    }
-    
-    .card-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      position: absolute;
-      top: 16px; right: 16px;
+      letter-spacing: 0.05em;
     }
 
-    /* Multi-select overlay replaces the dot when selected */
-    .card-check-overlay {
-      position:absolute; top: 12px; right: 12px;
-      width: 20px; height: 20px; border-radius: 50%;
-      background: var(--pink); display: none; align-items: center; justify-content: center;
-    }
-    .drone-card.multi-selected .card-check-overlay { display: flex; }
-    .drone-card.multi-selected .card-dot { display: none; }
-    .card-check-overlay svg { width: 14px; height: 14px; fill: white; }
-
-    /* Card Body: Drone ID + Dates */
-    .card-body {
-      padding: 14px 16px 16px;
-      flex: 1;
-    }
-    .card-title {
-      font-size: 16px;
-      font-weight: 700;
-      color: #1a1a1a;
-      margin-bottom: 4px;
-    }
-    .card-date {
-      font-size: 12px;
-      color: #666;
-      font-weight: 500;
-    }
-
-    /* Card Footer: Subtle background + Icon + Days Ago */
-    .card-footer {
-      padding: 10px 16px;
+    /* Middle Row: Name & Last Status Line */
+    .dc-mid {
+      padding: 4px 12px 10px 12px;
       display: flex;
-      align-items: center;
-      gap: 6px;
+      flex-direction: column;
+      gap: 3px;
+      flex: 1; /* Pushes footer to bottom */
+    }
+    .dc-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .dc-date {
+      font-size: 11.5px;
+      color: var(--text2);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Bottom Row: Days Ago */
+    .dc-bot {
+      padding: 8px 12px;
+      border-top: 1px solid var(--border);
       font-size: 12px;
       font-weight: 600;
-      color: #444;
-      border-top: 1px solid rgba(0,0,0,0.03);
+      color: var(--text2);
     }
-    .card-footer svg {
-      width: 14px; height: 14px; fill: currentColor; opacity: 0.7;
+
+    /* Multi-select check overlay */
+    .card-check-overlay {
+      position: absolute;
+      top: 6px; right: 6px;
+      background: var(--pink);
+      border-radius: 50%;
+      width: 20px; height: 20px;
+      display: none;
+      align-items: center;
+      justify-content: center;
     }
+    .drone-card.multi-selected .card-check-overlay { display: flex; }
+    .drone-card.multi-selected .dc-status { display: none; } /* Hide code when checked */
+    .card-check-overlay svg { width: 14px; height: 14px; fill: white; }
 
     @keyframes cardUpdated{
       0%{transform:scale(1);box-shadow:0 0 0 0 transparent}
@@ -233,7 +225,7 @@
     .drone-card.updated-card{animation:cardUpdated 5s ease}
 
     /* PAGINATION */
-    .pagination{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 0 80px; grid-column: 1/-1;}
+    .pagination{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 0 80px; grid-column:1/-1;}
     .page-btn{padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);font-size:13px;font-weight:600;color:var(--text2);cursor:pointer}
     .page-btn:disabled{opacity:.35;cursor:not-allowed}
     .page-info{font-size:13px;color:var(--text2);min-width:80px;text-align:center}
@@ -258,7 +250,7 @@
     .sheet-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.4)}
     .sheet-body{position:absolute;bottom:0;left:0;right:0;background:var(--surface);border-radius:20px 20px 0 0;padding:0 0 env(safe-area-inset-bottom,16px);max-height:90vh;overflow-y:auto;animation:slideUp .25s ease;max-width:480px;margin:0 auto; transition: border-top 0.2s ease;}
     @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-    .sheet-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 0}
+    .sheet-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:10px auto 0}
     .sheet-header{padding:14px 16px 12px;border-bottom:1px solid var(--border)}
     .sheet-drone-name{font-size:17px;font-weight:700;color:var(--text)}
     .sheet-current-status{font-size:12px;color:var(--text3);margin-top:3px}
@@ -363,6 +355,14 @@
       .select-hint{display:none !important}
       .list-meta{margin-bottom:14px;font-size:13px}
 
+      /* Drone cards adapt to 5 columns on desktop while keeping new grid layout */
+      #drone-list-container{
+        grid-template-columns:repeat(5, 1fr);
+        gap:14px;
+      }
+
+      .pagination{grid-column:1 / -1;padding:20px 0 40px;}
+
       #history-content{display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;align-content:start;}
       #history-content > div:first-child{grid-column:1 / -1;margin-bottom:0;}
       .history-item{margin-bottom:0}
@@ -378,15 +378,20 @@
     }
 
     @media (min-width: 1440px) {
+      #drone-list-container{grid-template-columns:repeat(6, 1fr)}
+      #history-content{grid-template-columns:repeat(4, 1fr)}
       .fleet-header,.content,#history-panel,header{padding-left:48px;padding-right:48px}
     }
     @media (min-width: 1800px) {
+      #drone-list-container{grid-template-columns:repeat(8, 1fr)}
+      #history-content{grid-template-columns:repeat(5, 1fr)}
       .fleet-header,.content,#history-panel,header{padding-left:64px;padding-right:64px}
     }
   </style>
 </head>
 <body>
 
+<!-- SETUP SCREEN -->
 <div id="setup-screen" class="hidden">
   <div id="setup-card">
     <div class="setup-logo">
@@ -411,6 +416,7 @@
   </div>
 </div>
 
+<!-- MAIN APP -->
 <div id="app">
   <header>
     <div class="header-left">
@@ -436,10 +442,11 @@
 
   <div id="fleet-panel" class="hidden">
     <div class="fleet-header">
+      <!-- 7 METRIC CARDS TRACKING STAGES (Acts as Filters) -->
       <div class="summary-scroll-wrap">
         <div class="summary-scroll">
           <div class="summary">
-            <div class="stat-card stat-total" id="filter-total">
+            <div class="stat-card stat-total" id="filter-total" onclick="setFilter(null)">
               <div class="stat-num" id="cnt-total">0</div><div class="stat-label">Total</div>
             </div>
             <div class="stat-card stat-good" id="filter-Qual" onclick="setFilter('Qualified')">
@@ -483,6 +490,7 @@
       
     </div>
     
+    <!-- DRONE GRID CARDS -->
     <div class="content" id="drone-list-container"></div>
   </div>
 
@@ -491,6 +499,7 @@
   </div>
 </div>
 
+<!-- INFO POPUP -->
 <div id="info-popup">
   <div class="info-backdrop" onclick="closeInfoPopup()"></div>
   <div class="info-box" id="info-box">
@@ -504,6 +513,7 @@
   </div>
 </div>
 
+<!-- UPDATE BOTTOM SHEET -->
 <div id="update-sheet">
   <div class="sheet-backdrop" onclick="closeSheet()"></div>
   <div class="sheet-body" id="sheet-body">
@@ -518,6 +528,7 @@
       <div class="status-options" id="status-options-grid"></div>
     </div>
     
+    <!-- DYNAMIC MULTI-SELECT REASON SECTION -->
     <div class="sheet-section" id="unqualified-details" style="display:none">
       <div class="sheet-section-title">1. Select Fault Code(s)</div>
       <div class="reason-grid" id="fault-code-grid"></div>
@@ -539,6 +550,7 @@
   </div>
 </div>
 
+<!-- BATCH BAR (Dynamic Actions) -->
 <div id="batch-bar">
   <div class="batch-label" id="batch-label">0 selected</div>
   <button class="batch-action-btn" id="batch-action-btn" onclick="executeBatchAction()">Action</button>
@@ -591,14 +603,14 @@ const STATUS_CODES = {
   'Work In Progress':   'WIP'
 };
 
-// Icons Mapped to Image Provided
+// Custom Icons Mapped to Image Provided
 const STATUS_ICONS = {
   'Ready for Animation':`<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`,
   'Ready for Testing':  `<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm0-7c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/></svg>`,
   'Qualified':          `<svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>`,
   'Work In Progress':   `<svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>`,
   'Unconfigured':       `<svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.02 7.02 0 00-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>`,
-  'Unqualified':        `<svg viewBox="0 0 24 24"><path d="M15.73 3H8.27L3 8.27v7.46L8.27 21h7.46L21 15.73V8.27L15.73 3zM12 17.3c-.72 0-1.3-.58-1.3-1.3 0-.72.58-1.3 1.3-1.3.72 0 1.3.58 1.3 1.3 0 .72-.58 1.3-1.3 1.3zm1-4.3h-2V7h2v6z"/></svg>`
+  'Unqualified':        `<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>`
 };
 
 const STATUS_VARS = {
@@ -781,7 +793,7 @@ function setFilter(status) {
   currentFilter = status;
   currentPage = 1;
   if (selectMode) exitSelectMode();
-  updateSummary(); 
+  updateSummary(); // refreshes UI state of cards
   applyFilterAndRender();
 }
 
@@ -815,7 +827,7 @@ function updateSummary() {
            el.classList.add('dimmed');
         }
       } else {
-        el.classList.add('dimmed');
+        el.classList.add('dimmed'); // Dim Total when a filter is active
       }
     }
   });
@@ -829,6 +841,7 @@ function applyFilterAndRender() {
   const PAGE_SIZE = getPageSize();
   const q = searchQuery.toLowerCase().trim();
   
+  // Apply Search + Status Filter
   filteredDrones = drones.filter(d => {
     const matchesSearch = !q || d.name.toLowerCase().includes(q) || (d.group||'').toLowerCase().includes(q) || (d.id||'').toLowerCase().includes(q);
     const matchesFilter = !currentFilter || d.status === currentFilter;
@@ -873,28 +886,32 @@ function applyFilterAndRender() {
       else if (d.status === "Unconfigured") datePrefix = "Last Added:";
 
       html += `<div class="drone-card${isSelected?' multi-selected':''}${isUpdated?' updated-card':''}"
-        style="${isUpdated?`--anim-color:${darkCol};`:''}" 
+        style="border-top: 4px solid ${darkCol}; ${isUpdated?`--anim-color:${darkCol};`:''}" 
         data-key="${key}" data-id="${d.id||d.name}"
         onclick="handleCardTap('${key}')" onmousedown="startLongPress('${key}')" ontouchstart="startLongPress('${key}')"
         onmouseup="cancelLongPress()" ontouchend="cancelLongPress()" onmouseleave="cancelLongPress()">
         
-        <div class="card-header">
-          <div class="card-icon-box" style="background-color: ${darkCol};">
+        <!-- Top Row: Icon & Status Code -->
+        <div class="dc-top">
+          <div class="dc-icon" style="fill: ${darkCol};">
             ${iconSvg}
           </div>
-          <div class="card-code" style="color: ${darkCol};">${shortCode}</div>
-          <div class="card-dot" style="background-color: ${darkCol};"></div>
+          <div class="dc-status" style="color: ${darkCol};">${shortCode}</div>
           
-          <div class="card-check-overlay"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></div>
+          <!-- Checkmark overlays the status text when selected -->
+          <div class="card-check-overlay">
+            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+          </div>
         </div>
         
-        <div class="card-body">
-          <div class="card-title">${d.name}</div>
-          <div class="card-date">${datePrefix} ${dateStr}</div>
+        <!-- Middle Row: Name & Exact Date Line -->
+        <div class="dc-mid">
+          <div class="dc-name">${d.name}</div>
+          <div class="dc-date">${datePrefix} ${dateStr}</div>
         </div>
         
-        <div class="card-footer" style="background-color: ${lightCol};">
-          <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+        <!-- Bottom Row: Relative Days Footer -->
+        <div class="dc-bot">
           ${relativeStr}
         </div>
         
