@@ -84,6 +84,7 @@
     .stat-card{background:var(--surface);border-radius:var(--radius);padding:12px 10px;text-align:center;border:1px solid var(--border);min-width:calc((100vw - 42px) / 3.1);flex-shrink:0;cursor:pointer;transition:all 0.2s ease;}
     .stat-total { cursor: default; } 
     
+    /* Active & Dimmed states for filters */
     .stat-card.dimmed { opacity: 0.4; transform: scale(0.96); }
     .stat-card.active { transform: scale(1.06); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 
@@ -151,7 +152,7 @@
     }
     .drone-card:active{transform:scale(0.98); background: #fafafa;}
     .drone-card.multi-selected{
-      border-color:var(--pink);
+      border-color:var(--pink) !important;
       background:var(--pink-light);
       transform:scale(1.02);
       box-shadow: 0 4px 12px rgba(224, 24, 90, 0.15);
@@ -839,7 +840,7 @@ function applyFilterAndRender() {
       const lightCol = `var(--${varKey}-light)`;
 
       html += `<div class="drone-card${isSelected?' multi-selected':''}${isUpdated?' updated-card':''}"
-        style="${isUpdated?`--anim-color:${darkCol};`:''}" 
+        style="border-top: 4px solid ${darkCol}; ${isUpdated?`--anim-color:${darkCol};`:''}" 
         data-key="${key}" data-id="${d.id||d.name}"
         onclick="handleCardTap('${key}')" onmousedown="startLongPress('${key}')" ontouchstart="startLongPress('${key}')"
         onmouseup="cancelLongPress()" ontouchend="cancelLongPress()" onmouseleave="cancelLongPress()">
