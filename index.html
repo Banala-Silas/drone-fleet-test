@@ -84,7 +84,6 @@
     .stat-card{background:var(--surface);border-radius:var(--radius);padding:12px 10px;text-align:center;border:1px solid var(--border);min-width:calc((100vw - 42px) / 3.1);flex-shrink:0;cursor:pointer;transition:all 0.2s ease;}
     .stat-total { cursor: default; } 
     
-    /* Active & Dimmed states for filters */
     .stat-card.dimmed { opacity: 0.4; transform: scale(0.96); }
     .stat-card.active { transform: scale(1.06); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 
@@ -133,9 +132,7 @@
     .clear-filter-btn{color:var(--pink);background:none;border:1px solid var(--pink); border-radius:12px; padding: 4px 10px; font-weight:600; font-size:11px; cursor:pointer; display:none;}
     .clear-filter-btn.visible{display:block;}
 
-    /* -------------------------------------------------------------
-       MOBILE DRONE CARDS (Horizontal Layout: Screenshot 2) 
-       ------------------------------------------------------------- */
+    /* MOBILE DRONE CARDS */
     #drone-list-container{display:block}
     .drone-card{
       background: #ffffff;
@@ -187,7 +184,6 @@
       border: none;
     }
 
-    /* Update Animation using exact dark hex */
     @keyframes cardUpdated{
       0%{transform:scale(1);box-shadow:0 0 0 0 transparent}
       20%{transform:scale(1.02)}
@@ -242,18 +238,20 @@
     .status-option.sel-Unqualified{border-color:var(--fail-dark);background:var(--fail-light)}
     .status-option.sel-Unqualified .opt-label{color:var(--fail-dark)}
 
+    /* NESTED FAULT CODE & REASONS UI */
     .reason-grid{display:flex;flex-direction:column;gap:6px}
-    .reason-option{padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px}
-    .reason-option.selected{border-color:var(--fail-dark);background:var(--fail-light);color:var(--fail-dark);font-weight:600}
-    .reason-radio{width:16px;height:16px;border-radius:50%;border:1.5px solid #ccc;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-    .reason-option.selected .reason-radio{background:var(--fail-dark);border-color:var(--fail-dark)}
-    .reason-option.selected .reason-radio::after{content:'';width:5px;height:5px;border-radius:50%;background:white}
-    .reason-option span{pointer-events:none}
+    .multi-option{padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;color:var(--text2);display:flex;align-items:center;gap:10px;transition:all .1s}
+    .multi-option.selected{border-color:var(--fail-dark);background:var(--fail-light);color:var(--fail-dark);font-weight:600}
+    .check-box{width:18px;height:18px;border-radius:4px;border:1.5px solid #ccc;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .1s}
+    .multi-option.selected .check-box{background:var(--fail-dark);border-color:var(--fail-dark)}
+    .multi-option.selected .check-box::after{content:'✓';color:white;font-size:12px;font-weight:900}
+    .multi-option span{pointer-events:none; flex:1;}
+    
     .notes-input{width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:var(--radius-sm);font-size:14px;color:var(--text);background:var(--surface2);outline:none;resize:none;font-family:inherit}
     .notes-input:focus{border-color:var(--pink)}
     .sheet-footer{padding:12px 16px;display:flex;gap:10px}
     .cancel-btn{flex:1;padding:13px;background:var(--surface2);border:1px solid #e0e0e0;border-radius:var(--radius);font-size:14px;font-weight:600;color:var(--text2);cursor:pointer}
-    .submit-btn{flex:2;padding:13px;background:var(--pink);color:white;border:none;border-radius:var(--radius);font-size:14px;font-weight:700;cursor:pointer}
+    .submit-btn{flex:2;padding:13px;background:var(--pink);color:white;border:none;border-radius:var(--radius);font-size:14px;font-weight:700;cursor:pointer; transition:opacity .2s;}
     .submit-btn:disabled{opacity:.4;cursor:not-allowed}
     .submit-btn:not(:disabled):active{background:var(--pink-dark)}
 
@@ -276,9 +274,7 @@
     @keyframes spin{to{transform:rotate(360deg)}}
     .empty-msg{text-align:center;padding:40px 16px;color:var(--text3);font-size:14px;line-height:1.6}
 
-    /* -------------------------------------------------------------
-       DESKTOP LAYOUT (>= 1024px) (Stacked Grid: Screenshot 3) 
-       ------------------------------------------------------------- */
+    /* DESKTOP LAYOUT (>= 1024px) */
     @media (min-width: 1024px) {
       html,body{height:auto;overflow-y:auto}
       #app{max-width:none;width:100%;height:auto;min-height:100vh;}
@@ -381,6 +377,7 @@
 </head>
 <body>
 
+<!-- SETUP SCREEN -->
 <div id="setup-screen" class="hidden">
   <div id="setup-card">
     <div class="setup-logo">
@@ -405,6 +402,7 @@
   </div>
 </div>
 
+<!-- MAIN APP -->
 <div id="app">
   <header>
     <div class="header-left">
@@ -430,6 +428,7 @@
 
   <div id="fleet-panel" class="hidden">
     <div class="fleet-header">
+      <!-- 7 METRIC CARDS TRACKING STAGES (Acts as Filters) -->
       <div class="summary-scroll-wrap">
         <div class="summary-scroll">
           <div class="summary">
@@ -484,6 +483,7 @@
   </div>
 </div>
 
+<!-- INFO POPUP -->
 <div id="info-popup">
   <div class="info-backdrop" onclick="closeInfoPopup()"></div>
   <div class="info-box" id="info-box">
@@ -497,6 +497,7 @@
   </div>
 </div>
 
+<!-- UPDATE BOTTOM SHEET -->
 <div id="update-sheet">
   <div class="sheet-backdrop" onclick="closeSheet()"></div>
   <div class="sheet-body" id="sheet-body">
@@ -505,14 +506,23 @@
       <div class="sheet-drone-name" id="sheet-drone-name">Drone</div>
       <div class="sheet-current-status" id="sheet-current-status"></div>
     </div>
+    
     <div class="sheet-section">
       <div class="sheet-section-title">Record Test Result</div>
       <div class="status-options" id="status-options-grid"></div>
     </div>
-    <div class="sheet-section" id="reason-section" style="display:none">
-      <div class="sheet-section-title">Reason for Unqualified</div>
-      <div class="reason-grid" id="reason-grid"></div>
+    
+    <!-- DYNAMIC MULTI-SELECT REASON SECTION -->
+    <div class="sheet-section" id="unqualified-details" style="display:none">
+      <div class="sheet-section-title">1. Select Fault Code(s)</div>
+      <div class="reason-grid" id="fault-code-grid"></div>
+      
+      <div id="reasons-wrapper" style="display:none; margin-top:16px;">
+        <div class="sheet-section-title">2. Select Reason(s)</div>
+        <div id="reason-group-container"></div>
+      </div>
     </div>
+
     <div class="sheet-section">
       <div class="sheet-section-title">Notes (optional)</div>
       <textarea class="notes-input" id="notes-input" rows="2" placeholder="Add any additional notes..."></textarea>
@@ -524,6 +534,7 @@
   </div>
 </div>
 
+<!-- BATCH BAR (Dynamic Actions) -->
 <div id="batch-bar">
   <div class="batch-label" id="batch-label">0 selected</div>
   <button class="batch-action-btn" id="batch-action-btn" onclick="executeBatchAction()">Action</button>
@@ -538,14 +549,22 @@ const PAGE_SIZE_MOBILE = 50;
 const PAGE_SIZE_DESKTOP = 100;
 function getPageSize(){ return isDesktop() ? PAGE_SIZE_DESKTOP : PAGE_SIZE_MOBILE; }
 
-// Dynamic error profile matched to structural workflow details
-const REASONS = [
-  'Propeller imbalance',
-  'GPS signal weak',
-  'Battery performance low',
-  'Camera issue',
-  'ESC error',
-  'Other (manual reason)'
+// FAULT DATA JSON (Multi-Select Architecture)
+const FAULT_DATA = [
+  { "faultCode": "Mag", "reasons": ["Mag field High", "Mag not Detected", "Mag field offset high"] },
+  { "faultCode": "Motor", "reasons": ["Low thrust", "Motor not working", "Junk Problem"] },
+  { "faultCode": "ESC No power", "reasons": [] },
+  { "faultCode": "FC", "reasons": ["FC port not detected", "No power in FC"] },
+  { "faultCode": "Propeller Damage", "reasons": [] },
+  { "faultCode": "RTK", "reasons": ["3D Fix", "HLC antenna damage"] },
+  { "faultCode": "GPS", "reasons": ["GPS Not detected", "No satellite count", "No power"] },
+  { "faultCode": "ESP", "reasons": [] },
+  { "faultCode": "LED", "reasons": ["Half LED", "No Full LED", "Parameter not set"] },
+  { "faultCode": "Body Damage", "reasons": [] },
+  { "faultCode": "ELRS", "reasons": ["ELRS not binding", "No power"] },
+  { "faultCode": "Other", "reasons": [] },
+  { "faultCode": "File Error", "reasons": [] },
+  { "faultCode": "Low RSSI", "reasons": [] }
 ];
 
 // Mapping structure exactly matched to architectural diagrams
@@ -558,7 +577,6 @@ const STATUS_DISPLAY = {
   'Work In Progress':   'Work In Progress'
 };
 
-// Variable Mapping for JS rendering (Used for Icons, Pills, and Glows)
 const STATUS_VARS = {
   'Unconfigured':       'unconf',
   'Ready for Testing':  'rft',
@@ -568,7 +586,6 @@ const STATUS_VARS = {
   'Work In Progress':   'wip'
 };
 
-// Forward chronological pipeline progression mapping rules
 const STATUS_OPTIONS_MAP = {
   'Ready for Testing':   ['Ready for Animation', 'Unqualified'], 
   'Ready for Animation': ['Qualified', 'Unqualified'],           
@@ -599,8 +616,12 @@ const DEMO_DRONES = Array.from({length:60},(_,i)=>{
 let config = JSON.parse(localStorage.getItem('droneConfig2') || 'null');
 let drones = [];
 let history = JSON.parse(localStorage.getItem('droneHistory') || '[]');
-let currentTab = 'fleet', sheetDrone = null, sheetStatus = null, sheetReason = null;
+let currentTab = 'fleet', sheetDrone = null, sheetStatus = null;
 let lastSync = null, demoMode = false, searchQuery = '', currentPage = 1, filteredDrones = [], recentlyUpdatedDrone = null;
+
+// Multi-Select Data Stores
+let selectedFaultCodes = new Set();
+let selectedReasons = {};
 
 // Filter State
 let currentFilter = null;
@@ -824,7 +845,7 @@ function applyFilterAndRender() {
         onmouseup="cancelLongPress()" ontouchend="cancelLongPress()" onmouseleave="cancelLongPress()">
         
         <div class="drone-avatar">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="${darkCol}">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="${darkCol}">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5zm0-5.5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/>
           </svg>
           <div class="check-overlay"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></div>
@@ -987,11 +1008,14 @@ function openSheet(encodedId) {
   }
 
   const options = STATUS_OPTIONS_MAP[sheetDrone.status] || [];
-  sheetStatus = null; sheetReason = null;
+  sheetStatus = null; 
+  selectedFaultCodes.clear();
+  selectedReasons = {};
+  
   document.getElementById('sheet-drone-name').textContent = sheetDrone.name;
   document.getElementById('sheet-current-status').textContent = `Current Stage: ${STATUS_DISPLAY[sheetDrone.status]}`;
   document.getElementById('notes-input').value = '';
-  document.getElementById('reason-section').style.display = 'none';
+  document.getElementById('unqualified-details').style.display = 'none';
   document.getElementById('submit-btn').disabled = true;
 
   const grid = document.getElementById('status-options-grid');
@@ -1056,37 +1080,145 @@ async function confirmRetest() {
   btn.disabled = false;
 }
 
+// ---- NESTED FAULT SELECTION LOGIC ---- //
+
 function selectStatus(s) {
-  sheetStatus = s; sheetReason = null;
+  sheetStatus = s; 
   document.querySelectorAll('.status-option').forEach(el => {
     el.className = 'status-option' + (el.dataset.s===s ? ` sel-${s}` : '');
   });
+  
   if (s==='Unqualified') {
-    document.getElementById('reason-section').style.display = 'block';
-    document.getElementById('reason-grid').innerHTML = REASONS.map(r =>
-      `<div class="reason-option" data-r="${r}" onclick="selectReason('${r}')"><div class="reason-radio"></div><span>${r}</span></div>`
-    ).join('');
-    document.getElementById('submit-btn').disabled = true;
+    document.getElementById('unqualified-details').style.display = 'block';
+    selectedFaultCodes.clear();
+    selectedReasons = {};
+    renderFaultCodes();
+    validateSubmit();
   } else {
-    document.getElementById('reason-section').style.display = 'none';
-    document.getElementById('submit-btn').disabled = false;
+    document.getElementById('unqualified-details').style.display = 'none';
+    validateSubmit();
   }
 }
 
-function selectReason(r) {
-  sheetReason = r;
-  document.querySelectorAll('.reason-option').forEach(el => { el.className = 'reason-option'+(el.dataset.r===r?' selected':''); });
-  document.getElementById('submit-btn').disabled = false;
+function renderFaultCodes() {
+  const grid = document.getElementById('fault-code-grid');
+  grid.innerHTML = FAULT_DATA.map(f => {
+    const isSel = selectedFaultCodes.has(f.faultCode);
+    return `<div class="multi-option ${isSel ? 'selected' : ''}" onclick="toggleFaultCode('${f.faultCode.replace(/'/g, "\\'")}')">
+              <div class="check-box"></div><span>${f.faultCode}</span>
+            </div>`;
+  }).join('');
+  renderReasons();
+}
+
+function toggleFaultCode(fc) {
+  if (selectedFaultCodes.has(fc)) {
+    selectedFaultCodes.delete(fc);
+    delete selectedReasons[fc];
+  } else {
+    selectedFaultCodes.add(fc);
+    selectedReasons[fc] = new Set();
+  }
+  renderFaultCodes();
+  validateSubmit();
+}
+
+function renderReasons() {
+  const wrapper = document.getElementById('reasons-wrapper');
+  const container = document.getElementById('reason-group-container');
+  
+  const codesWithReasons = [...selectedFaultCodes].filter(fc => {
+    const data = FAULT_DATA.find(d => d.faultCode === fc);
+    return data && data.reasons.length > 0;
+  });
+
+  if (codesWithReasons.length === 0) {
+    wrapper.style.display = 'none';
+    return;
+  }
+
+  wrapper.style.display = 'block';
+  
+  let html = '';
+  codesWithReasons.forEach(fc => {
+    const data = FAULT_DATA.find(d => d.faultCode === fc);
+    html += `<div style="margin-bottom:12px;">
+               <div style="font-size:12px; font-weight:600; color:var(--text); margin-bottom:6px;">${fc} Reasons</div>
+               <div class="reason-grid">
+                 ${data.reasons.map(r => {
+                   const isSel = selectedReasons[fc].has(r);
+                   return `<div class="multi-option ${isSel ? 'selected' : ''}" onclick="toggleReason('${fc.replace(/'/g, "\\'")}', '${r.replace(/'/g, "\\'")}')">
+                             <div class="check-box"></div><span>${r}</span>
+                           </div>`;
+                 }).join('')}
+               </div>
+             </div>`;
+  });
+  container.innerHTML = html;
+}
+
+function toggleReason(fc, reason) {
+  if (selectedReasons[fc].has(reason)) {
+    selectedReasons[fc].delete(reason);
+  } else {
+    selectedReasons[fc].add(reason);
+  }
+  renderReasons(); 
+  validateSubmit();
+}
+
+function validateSubmit() {
+  const btn = document.getElementById('submit-btn');
+  if (!sheetStatus) {
+    btn.disabled = true;
+    return;
+  }
+  
+  if (sheetStatus === 'Unqualified') {
+    if (selectedFaultCodes.size === 0) {
+      btn.disabled = true;
+      return;
+    }
+    
+    let isValid = true;
+    for (const fc of selectedFaultCodes) {
+      const data = FAULT_DATA.find(d => d.faultCode === fc);
+      if (data && data.reasons.length > 0) {
+        if (!selectedReasons[fc] || selectedReasons[fc].size === 0) {
+          isValid = false;
+          break;
+        }
+      }
+    }
+    btn.disabled = !isValid;
+  } else {
+    btn.disabled = false;
+  }
 }
 
 async function submitUpdate() {
   if (!sheetStatus) return;
+  
+  let finalReasonString = "";
+  if (sheetStatus === 'Unqualified') {
+     let parts = [];
+     for (const fc of selectedFaultCodes) {
+       if (selectedReasons[fc] && selectedReasons[fc].size > 0) {
+         parts.push(`${fc} (${[...selectedReasons[fc]].join(', ')})`);
+       } else {
+         parts.push(fc);
+       }
+     }
+     finalReasonString = parts.join(' | ');
+  }
+
   const btn = document.getElementById('submit-btn');
   btn.textContent = 'Updating…'; btn.disabled = true;
   const notes = document.getElementById('notes-input').value.trim();
+  
   try {
-    await writeDrone(sheetDrone, sheetStatus, sheetReason||'', notes);
-    history.push({ drone:sheetDrone.name, status:sheetStatus, reason:sheetReason||'', notes, time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) });
+    await writeDrone(sheetDrone, sheetStatus, finalReasonString, notes);
+    history.push({ drone:sheetDrone.name, status:sheetStatus, reason:finalReasonString, notes, time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) });
     localStorage.setItem('droneHistory', JSON.stringify(history));
     closeSheet();
     showToast(`✓ ${sheetDrone.name} updated successfully`, 'success');
