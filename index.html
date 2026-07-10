@@ -85,6 +85,7 @@
     .stat-card{background:var(--surface);border-radius:var(--radius);padding:12px 10px;text-align:center;border:1px solid var(--border);min-width:calc((100vw - 42px) / 3.1);flex-shrink:0;cursor:pointer;transition:all 0.2s ease;}
     .stat-total { cursor: default; } 
     
+    /* Active & Dimmed states for filters */
     .stat-card.dimmed { opacity: 0.4; transform: scale(0.96); }
     .stat-card.active { transform: scale(1.06); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 
@@ -121,7 +122,7 @@
     .clear-filter-btn.visible{display:block;}
 
     /* -------------------------------------------------------------
-       MOBILE DRONE CARDS (Horizontal Layout from Sketch)
+       NEW SKETCHED DRONE CARD PATTERN (Centered & Rounded)
        ------------------------------------------------------------- */
     #drone-list-container {
       display: grid;
@@ -151,7 +152,7 @@
       box-shadow: 0 4px 12px rgba(224, 24, 90, 0.15);
     }
     
-    /* Top Row: Icon & Status Code */
+    /* Top Row: Icon & Status Label */
     .dc-top {
       display: flex;
       justify-content: space-between;
@@ -327,9 +328,7 @@
     @keyframes spin{to{transform:rotate(360deg)}}
     .empty-msg{text-align:center;padding:40px 16px;color:var(--text3);font-size:14px;line-height:1.6; grid-column:1/-1;}
 
-    /* -------------------------------------------------------------
-       DESKTOP LAYOUT (>= 1024px) - Mirrors new Card Layout Perfectly
-       ------------------------------------------------------------- */
+    /* DESKTOP LAYOUT (>= 1024px) */
     @media (min-width: 1024px) {
       html,body{height:auto;overflow-y:auto}
       #app{max-width:none;width:100%;height:auto;min-height:100vh;}
@@ -371,73 +370,6 @@
         gap:14px;
       }
 
-      /* Desktop uses CSS Grid inside the card to map elements exactly to Mobile's layout without needing flex overrides */
-      .drone-card {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        grid-template-rows: auto 1fr auto;
-        padding: 0;
-        border: 1.5px solid var(--card-tint, var(--border));
-      }
-      .drone-card:hover{box-shadow:0 2px 10px rgba(0,0,0,.06); transform: translateY(-2px);}
-      
-      .dc-top {
-        display: contents; /* flattens so children sit in the main card grid */
-      }
-      .dc-icon {
-        display: flex;
-        grid-column: 1;
-        grid-row: 1;
-        margin: 16px 0 0 16px;
-        align-self: start;
-      }
-      .dc-status {
-        grid-column: 2;
-        grid-row: 1;
-        align-self: start;
-        margin: 16px 16px 0 0;
-        font-size: 13px;
-        padding: 6px 14px;
-      }
-      .card-check-overlay {
-        grid-column: 2;
-        grid-row: 1;
-        align-self: start;
-        margin: 16px 16px 0 0;
-        position: static;
-        width: 26px; height: 26px;
-      }
-
-      .dc-mid {
-        display: contents;
-      }
-      .dc-name {
-        grid-column: 1 / -1;
-        grid-row: 2;
-        text-align: center;
-        font-size: 22px;
-        font-weight: 800;
-        margin: 0;
-        align-self: center;
-        padding: 10px 16px;
-      }
-      .dc-date {
-        grid-column: 1 / -1;
-        grid-row: 3;
-        text-align: left;
-        font-size: 14px;
-        color: var(--text2);
-        margin: 0 16px 16px 16px;
-      }
-      .dc-bot {
-        grid-column: 1 / -1;
-        grid-row: 4;
-        text-align: left; /* Keep left or match mobile center? Design says match. */
-        padding: 12px 16px;
-        font-size: 14px;
-        border-top: none;
-      }
-
       .pagination{grid-column:1 / -1;padding:20px 0 40px;}
 
       #history-content{display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;align-content:start;}
@@ -468,6 +400,7 @@
 </head>
 <body>
 
+<!-- SETUP SCREEN -->
 <div id="setup-screen" class="hidden">
   <div id="setup-card">
     <div class="setup-logo">
@@ -492,6 +425,7 @@
   </div>
 </div>
 
+<!-- MAIN APP -->
 <div id="app">
   <header>
     <div class="header-left">
@@ -517,6 +451,7 @@
 
   <div id="fleet-panel" class="hidden">
     <div class="fleet-header">
+      <!-- 7 METRIC CARDS TRACKING STAGES (Acts as Filters) -->
       <div class="summary-scroll-wrap">
         <div class="summary-scroll">
           <div class="summary">
@@ -571,6 +506,7 @@
   </div>
 </div>
 
+<!-- INFO POPUP -->
 <div id="info-popup">
   <div class="info-backdrop" onclick="closeInfoPopup()"></div>
   <div class="info-box" id="info-box">
@@ -584,6 +520,7 @@
   </div>
 </div>
 
+<!-- UPDATE BOTTOM SHEET -->
 <div id="update-sheet">
   <div class="sheet-backdrop" onclick="closeSheet()"></div>
   <div class="sheet-body" id="sheet-body">
@@ -598,6 +535,7 @@
       <div class="status-options" id="status-options-grid"></div>
     </div>
     
+    <!-- DYNAMIC MULTI-SELECT REASON SECTION -->
     <div class="sheet-section" id="unqualified-details" style="display:none">
       <div class="sheet-section-title">1. Select Fault Code(s)</div>
       <div class="reason-grid" id="fault-code-grid"></div>
@@ -619,6 +557,7 @@
   </div>
 </div>
 
+<!-- BATCH BAR (Dynamic Actions) -->
 <div id="batch-bar">
   <div class="batch-label" id="batch-label">0 selected</div>
   <button class="batch-action-btn" id="batch-action-btn" onclick="executeBatchAction()">Action</button>
@@ -661,7 +600,7 @@ const STATUS_DISPLAY = {
   'Work In Progress':   'Work In Progress'
 };
 
-// Short Codes
+// Short Codes 
 const STATUS_CODES = {
   'Unconfigured':       'UCG',
   'Ready for Testing':  'RFT',
@@ -943,7 +882,7 @@ function applyFilterAndRender() {
       const lightCol = `var(--${varKey}-light)`;
       
       const shortCode = STATUS_CODES[d.status] || 'UNK';
-      const iconSvg = STATUS_ICONS[d.status] || `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>`;
+      const iconSvg = STATUS_ICONS[d.status] || `<svg viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="8"/></svg>`;
 
       const dateObj = d.updated || d.lastTested;
       const dateStr = getFormattedDateOnly(dateObj); 
@@ -953,15 +892,13 @@ function applyFilterAndRender() {
       if (d.status === "Ready for Testing" || d.status === "Ready for Animation") datePrefix = "Last Tested:";
       else if (d.status === "Unconfigured") datePrefix = "Last Added:";
 
-      // Ensure tinted border color dynamically updates on desktop
-      const cardStyleDesktopTint = isDesktop() ? `border-color: ${darkCol}40; --card-tint: ${darkCol}40;` : '';
-
       html += `<div class="drone-card${isSelected?' multi-selected':''}${isUpdated?' updated-card':''}"
-        style="${cardStyleDesktopTint} ${isUpdated?`--anim-color:${darkCol};`:''}" 
+        style="${isUpdated?`--anim-color:${darkCol};`:''}" 
         data-key="${key}" data-id="${d.id||d.name}"
         onclick="handleCardTap('${key}')" onmousedown="startLongPress('${key}')" ontouchstart="startLongPress('${key}')"
         onmouseup="cancelLongPress()" ontouchend="cancelLongPress()" onmouseleave="cancelLongPress()">
         
+        <!-- Top Row: Custom Icon & Short Code Pill -->
         <div class="dc-top">
           <div class="dc-icon" style="fill: ${darkCol};">
             ${iconSvg}
@@ -970,16 +907,19 @@ function applyFilterAndRender() {
             ${shortCode}
           </div>
           
+          <!-- Checkmark overlays the status text when selected -->
           <div class="card-check-overlay">
             <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
           </div>
         </div>
         
+        <!-- Middle Row: Name Centered, Date Left-aligned -->
         <div class="dc-mid">
           <div class="dc-name">${d.name}</div>
           <div class="dc-date">${datePrefix} ${dateStr}</div>
         </div>
         
+        <!-- Bottom Row: Relative Days Footer (Colored) -->
         <div class="dc-bot" style="background-color: ${lightCol}; color: ${darkCol};">
           ${relativeStr}
         </div>
