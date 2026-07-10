@@ -267,6 +267,13 @@
     .sheet-current-status{font-size:12px;color:var(--text3);margin-top:3px}
     .sheet-section{padding:14px 16px;border-bottom:1px solid var(--border)}
     .sheet-section-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+    .reason-highlight{
+    background:#FEF2F2;
+    border:1px solid #FECACA;
+    border-radius:12px;
+    padding:14px;
+    margin-top:16px;
+    }
     .status-options{display:grid;gap:8px}
     .status-options.cols-2{grid-template-columns:repeat(2,1fr)}
     .status-options.cols-3{grid-template-columns:repeat(3,1fr)}
@@ -586,7 +593,7 @@
       <div class="sheet-section-title">1. Select Fault Code(s)</div>
       <div class="reason-grid" id="fault-code-grid"></div>
       
-      <div id="reasons-wrapper" style="display:none; margin-top:16px;">
+      <div id="reasons-wrapper" class="reason-highlight" style="display:none;">
         <div class="sheet-section-title">2. Select Reason(s)</div>
         <div id="reason-group-container"></div>
       </div>
