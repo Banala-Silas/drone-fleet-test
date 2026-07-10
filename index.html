@@ -450,92 +450,6 @@
       #history-content{grid-template-columns:repeat(5, 1fr)}
       .fleet-header,.content,#history-panel,header{padding-left:64px;padding-right:64px}
     }
-
-    /* MOBILE CARD LAYOUT (< 1024px) — row cards matching screenshot.
-       Scoped with max-width so it can never touch anything inside the
-       min-width:1024px+ desktop blocks above. */
-    @media (max-width: 1023px) {
-      #drone-list-container {
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-
-      .drone-card {
-        display: grid;
-        grid-template-columns: 44px 1fr auto;
-        grid-template-rows: auto auto auto;
-        align-items: center;
-        column-gap: 12px;
-        row-gap: 1px;
-        padding: 12px 14px;
-        border-radius: 14px;
-      }
-
-      /* Unwrap the row/mid wrapper divs so their children can be placed
-         individually on the card's grid — no markup changes needed. */
-      .dc-top, .dc-mid { display: contents; }
-
-      .dc-icon {
-        grid-column: 1;
-        grid-row: 1 / span 3;
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-      }
-      .dc-icon svg { width: 20px; height: 20px; }
-
-      .dc-name {
-        grid-column: 2;
-        grid-row: 1;
-        text-align: left;
-        font-size: 16px;
-        font-weight: 700;
-        line-height: 1.3;
-      }
-
-      .dc-date {
-        grid-column: 2;
-        grid-row: 2;
-        text-align: left;
-        font-size: 12.5px;
-        white-space: normal;
-        line-height: 1.4;
-      }
-
-      .dc-bot {
-        grid-column: 2;
-        grid-row: 3;
-        background: none !important;
-        border-top: none;
-        padding: 0;
-        color: var(--text3) !important;
-        font-size: 12px;
-        font-weight: 500;
-        text-align: left;
-      }
-      .dc-bot::before { content: "("; }
-      .dc-bot::after { content: ")"; }
-
-      .dc-status {
-        grid-column: 3;
-        grid-row: 1 / span 3;
-        align-self: center;
-        justify-self: end;
-        font-size: 11px;
-        padding: 6px 10px;
-        border-radius: 20px;
-        white-space: normal;
-        text-align: center;
-        line-height: 1.25;
-        max-width: 96px;
-      }
-    }
   </style>
 </head>
 <body>
@@ -1021,7 +935,7 @@ function applyFilterAndRender() {
       const darkCol = `var(--${varKey}-dark)`;
       const lightCol = `var(--${varKey}-light)`;
       
-      const shortCode = STATUS_DISPLAY[d.status] || d.status; // uses existing STATUS_DISPLAY labels
+      const shortCode = STATUS_CODES[d.status] || 'UNK';
       const iconSvg = STATUS_ICONS[d.status] || `<svg viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="8"/></svg>`;
 
       const dateObj = d.updated || d.lastTested;
