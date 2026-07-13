@@ -122,11 +122,11 @@
     .clear-filter-btn.visible{display:block;}
 
     /* -------------------------------------------------------------
-       NEW SKETCHED DRONE CARD PATTERN (Centered & Rounded)
+       DRONE CARD PATTERNS (Dual Layout for Mobile vs Desktop)
        ------------------------------------------------------------- */
     #drone-list-container {
       display: grid;
-      grid-template-columns: 1fr 1fr; /* 2 columns on Mobile */
+      grid-template-columns: 1fr; /* 1 column on Mobile */
       gap: 12px;
       padding-bottom: 20px;
     }
@@ -152,7 +152,48 @@
       box-shadow: 0 4px 12px rgba(224, 24, 90, 0.15);
     }
     
-    /* Top Row: Icon & Status Label */
+    /* MOBILE LAYOUT SPECIFICS */
+    .layout-mobile {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      padding: 14px 16px;
+      gap: 16px;
+      width: 100%;
+    }
+    .layout-desktop {
+      display: none; /* hidden on mobile */
+    }
+    .lm-icon {
+      width: 44px; height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .target-icon {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lm-info {
+      display: flex; flex-direction: column; flex: 1; min-width: 0; gap: 3px;
+    }
+    .lm-name {
+      font-size: 16px; font-weight: 700; color: var(--text);
+    }
+    .lm-date {
+      font-size: 13px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .lm-relative {
+      font-size: 13px; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .lm-status {
+      font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 20px;
+      white-space: nowrap; flex-shrink: 0;
+    }
+
+    /* DESKTOP SUB-ELEMENTS (Preserved Exactly) */
     .dc-top {
       display: flex;
       justify-content: space-between;
@@ -167,7 +208,7 @@
     }
     .dc-icon svg { width: 18px; height: 18px; }
 
-    .dc-name-top { display: none; } /* only shown in desktop card layout */
+    .dc-name-top { display: none; } /* only shown in desktop layout */
 
     .dc-status {
       font-size: 11px;
@@ -177,7 +218,6 @@
       white-space: nowrap;
     }
 
-    /* Middle Row: Name Centered, Date Left-aligned */
     .dc-mid {
       padding: 4px 12px 16px 12px;
       display: flex;
@@ -204,7 +244,6 @@
       width: 100%;
     }
 
-    /* Bottom Row: Days Ago (Colored Area) */
     .dc-bot {
       padding: 8px 12px;
       border-top: 1px solid rgba(0,0,0,0.06);
@@ -224,7 +263,8 @@
       justify-content: center;
     }
     .drone-card.multi-selected .card-check-overlay { display: flex; }
-    .drone-card.multi-selected .dc-status { display: none; } /* Hide label when checked */
+    .drone-card.multi-selected .dc-status,
+    .drone-card.multi-selected .lm-status { display: none; } /* Hide label when checked */
     .card-check-overlay svg { width: 14px; height: 14px; fill: white; }
 
     @keyframes cardUpdated{
@@ -338,87 +378,6 @@
     @keyframes spin{to{transform:rotate(360deg)}}
     .empty-msg{text-align:center;padding:40px 16px;color:var(--text3);font-size:14px;line-height:1.6; grid-column:1/-1;}
 
-    /* MOBILE LIST LAYOUT (< 1024px) — single column row cards */
-    @media (max-width: 1023.98px) {
-      .stat-label{ white-space:normal; line-height:1.25; }
-
-      #drone-list-container{
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-
-      .drone-card{
-        display:grid;
-        grid-template-columns: 48px 1fr;
-        grid-template-rows: auto auto auto;
-        column-gap: 12px;
-        row-gap: 3px;
-        align-items: center;
-        padding: 12px 14px;
-        position: relative;
-        border-radius: 14px;
-      }
-
-      .dc-top{
-        grid-column: 1;
-        grid-row: 1 / 4;
-        width: 48px;
-        height: 48px;
-        padding: 0;
-        border-radius: 12px;
-        background-color: var(--status-light);
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        align-self:center;
-      }
-      .dc-icon{ display:flex; }
-      .dc-icon svg{ width:22px; height:22px; }
-      .dc-name-top{ display:none; }
-
-      .dc-status{
-        position:absolute;
-        top:50%;
-        right:14px;
-        transform:translateY(-50%);
-        font-size:11px;
-        padding:5px 12px;
-      }
-
-      .dc-mid{
-        grid-column: 2;
-        grid-row: 1 / 3;
-        flex-direction: column;
-        align-items:flex-start;
-        justify-content:center;
-        gap:3px;
-        padding:0 60px 0 0;
-        text-align:left;
-      }
-      .dc-name{
-        font-size:16px;
-        text-align:left;
-        width:auto;
-      }
-      .dc-date{
-        text-align:left;
-        white-space:normal;
-      }
-
-      .dc-bot{
-        grid-column: 2;
-        grid-row: 3;
-        background: none !important;
-        border-top: none;
-        padding: 0;
-        text-align: left;
-        font-size: 11.5px;
-        font-weight: 600;
-      }
-
-      .card-check-overlay{ top:14px; right:14px; }
-    }
-
     /* DESKTOP LAYOUT (>= 1024px) */
     @media (min-width: 1024px) {
       html,body{height:auto;overflow-y:auto}
@@ -454,6 +413,16 @@
       #drone-search{font-size:14px;padding:11px 14px 11px 36px}
       .select-hint{display:none !important}
       .list-meta{margin-bottom:14px;font-size:13px}
+
+      /* Desktop Layout Transitions */
+      .layout-mobile { display: none !important; }
+      .layout-desktop {
+        display: flex !important;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        flex: 1;
+      }
 
       /* Desktop Grid Adapts perfectly to the Vertical Stack Pattern */
       #drone-list-container{
@@ -727,10 +696,10 @@ const FAULT_DATA = [
 
 // Mapping structure exactly matched to architectural diagrams
 const STATUS_DISPLAY = {
-  'Unconfigured':       'Unconfigured',
+  'Unconfigured':       'Un-slotted',
   'Ready for Testing':  'Ready for Testing',
   'Ready for Animation':'Ready for Animation',
-  'Qualified':          'Qualified ✔',
+  'Qualified':          'Good',
   'Unqualified':        'Unqualified',
   'Work In Progress':   'Work In Progress'
 };
@@ -788,7 +757,7 @@ const OPTION_DISPLAY = {
 const DEMO_DRONES = Array.from({length:60},(_,i)=>{
   const g=['Alpha','Beta','Gamma'][Math.floor(i/20)];
   const statuses=['Ready for Testing','Ready for Animation','Qualified','Unqualified','Work In Progress','Unconfigured'];
-  return {id:`D${String(i+1).padStart(2,'0')}`,name:`Drone ${g} ${String(i%20+1).padStart(2,'0')}`,group:g,status:statuses[i%6]};
+  return {id:`D${String(i+1).padStart(2,'0')}`,name:`D - ${String(i%20+1).padStart(4,'0')}`,group:g,status:statuses[i%6]};
 });
 
 let config = JSON.parse(localStorage.getItem('droneConfig2') || 'null');
@@ -1027,39 +996,64 @@ function applyFilterAndRender() {
       if (d.status === "Ready for Testing" || d.status === "Ready for Animation") datePrefix = "Last Tested:";
       else if (d.status === "Unconfigured") datePrefix = "Last Added:";
 
+      // Mobile exact match string handling
+      let finalDateStr = `${datePrefix} ${dateStr}`;
+      let finalRelativeHtml = `<div class="lm-relative">(${relativeStr})</div>`;
+      if (relativeStr === 'Today') {
+        finalDateStr = `${datePrefix} Today`;
+        finalRelativeHtml = '';
+      }
+      const fullStatusName = STATUS_DISPLAY[d.status] || d.status;
+
       html += `<div class="drone-card${isSelected?' multi-selected':''}${isUpdated?' updated-card':''}"
-        style="${isUpdated?`--anim-color:${darkCol};`:''} --status-light:${lightCol}; --status-dark:${darkCol};" 
+        style="${isUpdated?`--anim-color:${darkCol};`:''}" 
         data-key="${key}" data-id="${d.id||d.name}"
         onclick="handleCardTap('${key}')" onmousedown="startLongPress('${key}')" ontouchstart="startLongPress('${key}')"
         onmouseup="cancelLongPress()" ontouchend="cancelLongPress()" onmouseleave="cancelLongPress()">
         
-        <!-- Top Row: Custom Icon & Short Code Pill -->
-        <div class="dc-top">
-          <div class="dc-icon" style="fill: ${darkCol};">
-            ${iconSvg}
+        <!-- MOBILE LAYOUT -->
+        <div class="layout-mobile">
+          <div class="lm-icon">
+            <div class="target-icon" style="border: 3.5px solid ${darkCol};">
+               <div style="background-color: ${darkCol}; width: 6px; height: 6px; border-radius: 50%;"></div>
+            </div>
           </div>
-          <div class="dc-name-top">${d.name}</div>
-          <div class="dc-status" style="background-color: ${lightCol}; border: 1px solid ${darkCol}; color: ${darkCol};">
-            ${shortCode}
+          <div class="lm-info">
+            <div class="lm-name">${d.name}</div>
+            <div class="lm-date">${finalDateStr}</div>
+            ${finalRelativeHtml}
+          </div>
+          <div class="lm-status" style="background-color: ${lightCol}; color: ${darkCol};">
+            ${fullStatusName}
+          </div>
+        </div>
+
+        <!-- DESKTOP LAYOUT (Original exactly as it was) -->
+        <div class="layout-desktop">
+          <div class="dc-top">
+            <div class="dc-icon" style="fill: ${darkCol};">
+              ${iconSvg}
+            </div>
+            <div class="dc-name-top">${d.name}</div>
+            <div class="dc-status" style="background-color: ${lightCol}; border: 1px solid ${darkCol}; color: ${darkCol};">
+              ${shortCode}
+            </div>
           </div>
           
-          <!-- Checkmark overlays the status text when selected -->
-          <div class="card-check-overlay">
-            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+          <div class="dc-mid">
+            <div class="dc-name">${d.name}</div>
+            <div class="dc-date">${datePrefix} ${dateStr}</div>
+          </div>
+          
+          <div class="dc-bot" style="background-color: ${lightCol}; color: ${darkCol};">
+            ${relativeStr}
           </div>
         </div>
-        
-        <!-- Middle Row: Name Centered, Date Left-aligned -->
-        <div class="dc-mid">
-          <div class="dc-name">${d.name}</div>
-          <div class="dc-date">${datePrefix} ${dateStr}</div>
+
+        <!-- Multi-select check overlay -->
+        <div class="card-check-overlay">
+          <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
         </div>
-        
-        <!-- Bottom Row: Relative Days Footer (Colored) -->
-        <div class="dc-bot" style="background-color: ${lightCol}; color: ${darkCol};">
-          ${relativeStr}
-        </div>
-        
       </div>`;
     });
   }
