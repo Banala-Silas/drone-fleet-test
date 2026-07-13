@@ -338,6 +338,87 @@
     @keyframes spin{to{transform:rotate(360deg)}}
     .empty-msg{text-align:center;padding:40px 16px;color:var(--text3);font-size:14px;line-height:1.6; grid-column:1/-1;}
 
+    /* MOBILE LIST LAYOUT (< 1024px) — single column row cards */
+    @media (max-width: 1023.98px) {
+      .stat-label{ white-space:normal; line-height:1.25; }
+
+      #drone-list-container{
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .drone-card{
+        display:grid;
+        grid-template-columns: 48px 1fr;
+        grid-template-rows: auto auto auto;
+        column-gap: 12px;
+        row-gap: 3px;
+        align-items: center;
+        padding: 12px 14px;
+        position: relative;
+        border-radius: 14px;
+      }
+
+      .dc-top{
+        grid-column: 1;
+        grid-row: 1 / 4;
+        width: 48px;
+        height: 48px;
+        padding: 0;
+        border-radius: 12px;
+        background-color: var(--status-light);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        align-self:center;
+      }
+      .dc-icon{ display:flex; }
+      .dc-icon svg{ width:22px; height:22px; }
+      .dc-name-top{ display:none; }
+
+      .dc-status{
+        position:absolute;
+        top:50%;
+        right:14px;
+        transform:translateY(-50%);
+        font-size:11px;
+        padding:5px 12px;
+      }
+
+      .dc-mid{
+        grid-column: 2;
+        grid-row: 1 / 3;
+        flex-direction: column;
+        align-items:flex-start;
+        justify-content:center;
+        gap:3px;
+        padding:0 60px 0 0;
+        text-align:left;
+      }
+      .dc-name{
+        font-size:16px;
+        text-align:left;
+        width:auto;
+      }
+      .dc-date{
+        text-align:left;
+        white-space:normal;
+      }
+
+      .dc-bot{
+        grid-column: 2;
+        grid-row: 3;
+        background: none !important;
+        border-top: none;
+        padding: 0;
+        text-align: left;
+        font-size: 11.5px;
+        font-weight: 600;
+      }
+
+      .card-check-overlay{ top:14px; right:14px; }
+    }
+
     /* DESKTOP LAYOUT (>= 1024px) */
     @media (min-width: 1024px) {
       html,body{height:auto;overflow-y:auto}
@@ -947,7 +1028,7 @@ function applyFilterAndRender() {
       else if (d.status === "Unconfigured") datePrefix = "Last Added:";
 
       html += `<div class="drone-card${isSelected?' multi-selected':''}${isUpdated?' updated-card':''}"
-        style="${isUpdated?`--anim-color:${darkCol};`:''}" 
+        style="${isUpdated?`--anim-color:${darkCol};`:''} --status-light:${lightCol}; --status-dark:${darkCol};" 
         data-key="${key}" data-id="${d.id||d.name}"
         onclick="handleCardTap('${key}')" onmousedown="startLongPress('${key}')" ontouchstart="startLongPress('${key}')"
         onmouseup="cancelLongPress()" ontouchend="cancelLongPress()" onmouseleave="cancelLongPress()">
