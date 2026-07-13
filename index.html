@@ -998,7 +998,6 @@ function applyFilterAndRender() {
         finalDateStr = `${datePrefix} Today`;
         finalRelativeHtml = '';
       }
-      const fullStatusName = STATUS_DISPLAY[d.status] || d.status;
 
       html += `<div class="drone-card${isSelected?' multi-selected':''}${isUpdated?' updated-card':''}"
         style="${isUpdated?`--anim-color:${darkCol};`:''}" 
@@ -1013,8 +1012,8 @@ function applyFilterAndRender() {
             <div class="lm-date">${finalDateStr}</div>
             ${finalRelativeHtml}
           </div>
-          <div class="lm-status" style="background-color: ${lightCol}; color: ${darkCol};">
-            ${fullStatusName}
+          <div class="lm-status" style="background-color: ${lightCol}; color: ${darkCol}; border: 1px solid ${darkCol};">
+            ${shortCode}
           </div>
         </div>
 
