@@ -347,6 +347,35 @@
     .select-hint{font-size:11px;color:var(--text3);text-align:center;padding:4px 0 6px;display:none}
     .select-hint.visible{display:block}
 
+    /* SCROLL FABS */
+    .scroll-fab {
+      position: fixed;
+      right: 20px;
+      bottom: 80px;
+      width: 48px;
+      height: 48px;
+      background: var(--pink);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      box-shadow: 0 4px 12px rgba(224, 24, 90, 0.4);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.8);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .scroll-fab.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+    .scroll-fab svg { width: 24px; height: 24px; fill: white; }
+
     /* WIP / INFO POPUP */
     #info-popup{position:fixed;inset:0;z-index:80;display:none;align-items:flex-end;justify-content:center}
     #info-popup.open{display:flex}
@@ -663,6 +692,14 @@
   <button class="batch-cancel-btn" onclick="exitSelectMode()">✕ Cancel</button>
 </div>
 
+<!-- SCROLL FABS -->
+<button id="scroll-up-btn" class="scroll-fab" onclick="scrollToTop()">
+  <svg viewBox="0 0 24 24"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/></svg>
+</button>
+<button id="scroll-down-btn" class="scroll-fab" onclick="scrollToBottom()">
+  <svg viewBox="0 0 24 24"><path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/></svg>
+</button>
+
 <div id="toast"></div>
 
 <script>
@@ -771,6 +808,10 @@ let currentFilter = null;
 // Select State
 let selectMode = false, selectedIds = new Set(), selectStatusType = null, longPressTimer = null;
 
+// Scroll FAB Logic variables
+let lastScrollY = 0;
+let scrollTimeout;
+
 // Helpers for dates
 function getDaysAgo(dateString) {
   if (!dateString) return 0;
@@ -789,6 +830,73 @@ function getRelativeDaysStr(dateString) {
   const diffDays = getDaysAgo(dateString);
   if (diffDays <= 0) return "Today";
   return `${diffDays} Day${diffDays>1?'s':''} Ago`;
+}
+
+// Scroll Handlers
+function handleScroll(e) {
+  const target = e.target;
+  let scrollTop, scrollHeight, clientHeight;
+  
+  // Checking if scrolling on window/document or a specific container
+  if (target === document || target === window) {
+    scrollTop = window.scrollY || document.documentElement.scrollTop;
+    scrollHeight = document.documentElement.scrollHeight;
+    clientHeight = window.innerHeight;
+  } else {
+    scrollTop = target.scrollTop;
+    scrollHeight = target.scrollHeight;
+    clientHeight = target.clientHeight;
+  }
+  
+  const upBtn = document.getElementById('scroll-up-btn');
+  const downBtn = document.getElementById('scroll-down-btn');
+  if (!upBtn || !downBtn) return;
+
+  if (scrollTop > lastScrollY && scrollTop > 50) {
+    // Scrolling Down
+    if (scrollTop + clientHeight < scrollHeight - 30) {
+      downBtn.classList.add('visible');
+      upBtn.classList.remove('visible');
+    } else {
+      downBtn.classList.remove('visible');
+    }
+  } else if (scrollTop < lastScrollY) {
+    // Scrolling Up
+    if (scrollTop > 50) {
+      upBtn.classList.add('visible');
+      downBtn.classList.remove('visible');
+    } else {
+      upBtn.classList.remove('visible');
+    }
+  }
+  lastScrollY = scrollTop;
+  
+  // Auto-hide buttons after 2.5 seconds of inactivity for cleaner UI
+  clearTimeout(scrollTimeout);
+  scrollTimeout = setTimeout(() => {
+    upBtn.classList.remove('visible');
+    downBtn.classList.remove('visible');
+  }, 2500);
+}
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const container = document.getElementById('drone-list-container');
+  if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
+  const history = document.getElementById('history-panel');
+  if (history) history.scrollTo({ top: 0, behavior: 'smooth' });
+  
+  document.getElementById('scroll-up-btn').classList.remove('visible');
+}
+
+function scrollToBottom() {
+  window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+  const container = document.getElementById('drone-list-container');
+  if (container) container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+  const history = document.getElementById('history-panel');
+  if (history) history.scrollTo({ top: history.scrollHeight, behavior: 'smooth' });
+  
+  document.getElementById('scroll-down-btn').classList.remove('visible');
 }
 
 window.onload = () => {
@@ -810,6 +918,11 @@ window.onload = () => {
       if (drones.length) applyFilterAndRender();
     }
   });
+
+  // Attach Scroll Listeners
+  window.addEventListener('scroll', handleScroll, { passive: true });
+  document.getElementById('drone-list-container').addEventListener('scroll', handleScroll, { passive: true });
+  document.getElementById('history-panel').addEventListener('scroll', handleScroll, { passive: true });
 };
 
 function showSetup() { document.getElementById('setup-screen').classList.remove('hidden'); }
@@ -980,6 +1093,7 @@ function applyFilterAndRender() {
       const darkCol = `var(--${varKey}-dark)`;
       const lightCol = `var(--${varKey}-light)`;
       
+      // Ensures accurate application of prompt constraints for both Layouts
       const shortCode = STATUS_CODES[d.status] || 'UNK';
       const iconSvg = STATUS_ICONS[d.status] || `<svg viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="8"/></svg>`;
 
