@@ -144,6 +144,7 @@
       transition: transform 0.15s ease, box-shadow 0.15s ease;
       box-shadow: 0 1px 3px rgba(0,0,0,0.02);
       overflow: hidden;
+      height: 90px; /* FIXED HEIGHT FOR MOBILE TO PREVENT COLLAPSING */
     }
     .drone-card:active{transform:scale(0.97); box-shadow: 0 0px 1px rgba(0,0,0,0.05);}
     .drone-card.multi-selected{
@@ -157,27 +158,17 @@
       display: flex;
       flex-direction: row;
       align-items: center;
-      padding: 14px 16px;
+      padding: 0 16px;
       gap: 16px;
       width: 100%;
+      height: 100%; /* Fill the fixed height card */
     }
     .layout-desktop {
       display: none; /* hidden on mobile */
     }
-    .lm-icon {
-      width: 44px; height: 44px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    .target-icon {
-      width: 18px; height: 18px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-    }
+    
     .lm-info {
-      display: flex; flex-direction: column; flex: 1; min-width: 0; gap: 3px;
+      display: flex; flex-direction: column; flex: 1; min-width: 0; gap: 4px; justify-content: center;
     }
     .lm-name {
       font-size: 16px; font-weight: 700; color: var(--text);
@@ -445,8 +436,12 @@
       .info-box{border-radius:16px;animation:modalPop .18s ease;}
       #batch-bar{max-width:600px;left:50%;right:auto;transform:translateX(-50%);border-radius:14px 14px 0 0;bottom:0;}
 
-      /* ---- Desktop Drone Card: big ID + outline status pill + centered footer ---- */
-      .drone-card{border-radius:16px;border-color:#e4e4f2;}
+      /* ---- Desktop Drone Card: auto height + big ID + outline status pill + centered footer ---- */
+      .drone-card{
+        height: auto; /* Reset fixed height for desktop */
+        border-radius:16px;
+        border-color:#e4e4f2;
+      }
       .dc-top{
         padding:14px 16px 4px 16px;
         align-items:flex-start;
@@ -1013,11 +1008,6 @@ function applyFilterAndRender() {
         
         <!-- MOBILE LAYOUT -->
         <div class="layout-mobile">
-          <div class="lm-icon">
-            <div class="target-icon" style="border: 3.5px solid ${darkCol};">
-               <div style="background-color: ${darkCol}; width: 6px; height: 6px; border-radius: 50%;"></div>
-            </div>
-          </div>
           <div class="lm-info">
             <div class="lm-name">${d.name}</div>
             <div class="lm-date">${finalDateStr}</div>
